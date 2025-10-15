@@ -1,0 +1,16 @@
+package org.example.plantory_be.repository;
+
+import org.example.plantory_be.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByUsername(String name);
+
+    boolean existsByNickName(String nickname);
+
+    boolean existsByEmail(String email);
+}
