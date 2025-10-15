@@ -7,6 +7,9 @@ const useAuthStore = create((set) => ({
   loading: false,
   error: null,
 
+  setAuth: ({ user, isAuthenticated, loading = false, error = null }) =>
+    set({ user, isAuthenticated, loading, error }),
+
   login: async (userData) => {
     set({ loading: true, error: null });
     try {
