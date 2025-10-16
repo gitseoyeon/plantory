@@ -2,6 +2,7 @@ package org.example.plantory_be.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.plantory_be.dto.request.AuthRequest;
 import org.example.plantory_be.dto.request.RegisterRequest;
 import org.example.plantory_be.dto.response.AuthResponse;
 import org.example.plantory_be.service.AuthService;
@@ -20,5 +21,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }

@@ -2,6 +2,7 @@ package org.example.plantory_be.config;
 
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.security.JwtAuthenticationFilter;
+import org.example.plantory_be.security.OAuthSuccessHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final OAuthSuccessHandler oAuthSuccessHandler;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -33,8 +35,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuthSuccessHandler)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
