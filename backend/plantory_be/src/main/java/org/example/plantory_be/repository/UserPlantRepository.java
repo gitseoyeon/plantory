@@ -1,4 +1,18 @@
 package org.example.plantory_be.repository;
 
-public interface UserPlantRepository {
+import org.example.plantory_be.entity.UserPlant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserPlantRepository extends JpaRepository<UserPlant, Long> {
+
+    @EntityGraph(attributePaths = {"user", "userPlantSpecies"})
+    Page<UserPlant> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "userPlantSpecies"})
+    Page<UserPlant> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
+
 }

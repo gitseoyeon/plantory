@@ -47,7 +47,7 @@ public class UserPlant {
     private String imageUrl;
 
     @Column(name = "is_indoor")
-    private boolean Indoor ;
+    private boolean indoor ;
 
     @Column(length = 200)
     private String location;
