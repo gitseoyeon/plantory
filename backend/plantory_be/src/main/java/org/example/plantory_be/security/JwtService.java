@@ -34,6 +34,7 @@ public class JwtService {
             extraClaims.put("id", user.getId());
             extraClaims.put("email", user.getEmail());
             extraClaims.put("username", user.getUsername());
+            extraClaims.put("profileImageUrl", user.getProfileImageUrl());
         }
 
         return buildToken(extraClaims, userDetails, jwtExpiration);
