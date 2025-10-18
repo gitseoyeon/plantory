@@ -5,7 +5,6 @@ import useUserPlantStore from "../store/userPlantStore";
 import {
   buildSpeciesIndex,
   getSpeciesIdByName,
-  suggestSpecies,
   buildCreatePlantPayload,
 } from "../utils/plant";
 import { filterByKorean } from "../utils/korean";
@@ -46,7 +45,7 @@ const PlantRegister = ({ onClose }) => {
   useEffect(() => {
     (async () => {
       try {
-        await Promise.all([listSpecies(), listPotSize()]); // ✅ 종/화분크기 동시 로드
+        await Promise.all([listSpecies(), listPotSize()]);
       } catch (e) {
         console.error("[PlantRegister] init load error:", e);
       }
@@ -145,12 +144,12 @@ const PlantRegister = ({ onClose }) => {
     }
 
     const payload = buildCreatePlantPayload({ ...form, speciesId });
-    console.log("[PlantRegister] payload to server:", payload);
+    //console.log("[PlantRegister] payload to server:", payload);
 
     try {
       const res = await createPlant(payload);
-      console.log("[PlantRegister] createPlant result:", res);
-      // onClose?.(); // 필요 시 모달 닫기
+      //console.log("[PlantRegister] createPlant result:", res);
+      onClose?.();
     } catch (err) {
       console.error("[PlantRegister] createPlant error:", err);
       alert("등록 실패");
@@ -221,7 +220,7 @@ const PlantRegister = ({ onClose }) => {
             <section className="bg-white rounded-2xl border border-gray-200 shadow-sm">
               <div className="px-5 py-4 border-b border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-800">
-                  기본 정보 {user?.id}/{user?.email}
+                  기본 정보
                 </h2>
               </div>
 
