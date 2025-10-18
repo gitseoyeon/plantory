@@ -32,6 +32,16 @@ public class UserPlantController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<Page<UserPlantResponse>> getAllUserPlants(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserPlantResponse> userPlants = userPlantService.listAllUserPlants(pageable);
+        return ResponseEntity.ok(userPlants);
+    }
 
     @GetMapping
     public ResponseEntity<Page<UserPlantResponse>> getMyUserPlants(
@@ -40,7 +50,7 @@ public class UserPlantController {
     ) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<UserPlantResponse> userPlants = userPlantService.listUserPlants(pageable);
+        Page<UserPlantResponse> userPlants = userPlantService.listMyUserPlants(pageable);
         return ResponseEntity.ok(userPlants);
     }
 

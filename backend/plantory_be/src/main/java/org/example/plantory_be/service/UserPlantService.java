@@ -56,12 +56,18 @@ public class UserPlantService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserPlantResponse> listUserPlants(Pageable pageable) {
+    public Page<UserPlantResponse> listAllUserPlants(Pageable pageable) {
+
+        Page<UserPlant> page = userPlantRepository.findAllByOrderByCreatedAtDesc(pageable);
+
+        return page.map(UserPlantResponse::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserPlantResponse> listMyUserPlants(Pageable pageable) {
         User currentUser = authenticationService.getCurrentUser();
 
-        Page<UserPlant> page = (currentUser.getId() == null)
-                ? userPlantRepository.findAllByOrderByCreatedAtDesc(pageable)
-                : userPlantRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId(), pageable);
+        Page<UserPlant> page = userPlantRepository.findByUserIdOrderByCreatedAtDesc(currentUser.getId(), pageable);
 
         return page.map(UserPlantResponse::fromEntity);
     }

@@ -8,11 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserPlantRepository extends JpaRepository<UserPlant, Long> {
 
-    @EntityGraph(attributePaths = {"user", "userPlantSpecies"})
+    @EntityGraph(attributePaths = "userPlantSpecies")
     Page<UserPlant> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     @EntityGraph(attributePaths = {"user", "userPlantSpecies"})
     Page<UserPlant> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
-
-
 }
