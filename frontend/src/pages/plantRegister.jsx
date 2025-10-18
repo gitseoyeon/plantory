@@ -129,11 +129,9 @@ const PlantRegister = ({ onClose }) => {
     }
   };
 
-  // 제출
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // speciesId 없는데 이름만 있는 경우 마지막 보정
     let speciesId = form.speciesId;
     if (!speciesId && form.speciesName) {
       speciesId = getSpeciesIdByName(form.speciesName, speciesIndex);
@@ -157,13 +155,9 @@ const PlantRegister = ({ onClose }) => {
   };
 
   const tabs = [
-    { key: "plant", label: "식물 등록", color: "from-lime-400 to-green-500" },
-    { key: "growth", label: "성장 기록", color: "from-sky-400 to-cyan-600" },
-    {
-      key: "journal",
-      label: "일지 작성",
-      color: "from-amber-400 to-orange-500",
-    },
+    { key: "plant", label: "식물 등록", color: "bg-lime-500" },
+    { key: "growth", label: "성장 기록", color: "bg-sky-400" },
+    { key: "journal", label: "일지 작성", color: "bg-yellow-400" },
   ];
 
   return (
@@ -181,7 +175,7 @@ const PlantRegister = ({ onClose }) => {
                   className={[
                     "w-full text-left rounded-2xl px-5 py-3 font-semibold transition-all",
                     active
-                      ? `text-white bg-gradient-to-r ${t.color} shadow-lg scale-[1.01]`
+                      ? `text-white ${t.color} shadow-lg scale-[1.01]`
                       : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50",
                   ].join(" ")}
                 >
@@ -258,7 +252,7 @@ const PlantRegister = ({ onClose }) => {
                     type="text"
                     autoComplete="off"
                     className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
-                    placeholder=" 종류 (예: 몬스테라 델리시오사 / ㅁㅅㅌㄹ)"
+                    placeholder=" 종류 (예: 다육 / ㄷㅇ 초성 검색)"
                     onFocus={() => {
                       if (form.speciesName) {
                         const base = Array.isArray(species) ? species : [];
@@ -321,11 +315,13 @@ const PlantRegister = ({ onClose }) => {
               <div className="p-5 space-y-6">
                 {/* 사진 업로드 (UI 데모) */}
                 <div>
-                  <label className="block w-full rounded-xl border border-dashed border-gray-300 p- text-center cursor-pointer hover:border-gray-400">
+                  <label
+                    className="block w-full rounded-xl border border-dashed border-gray-300 p- text-center 
+                   hover:border-gray-400"
+                  >
                     <input
                       id="imageUrl"
                       name="imageUrl"
-                      type="file"
                       className="hidden"
                       accept="image/*"
                       onChange={(e) => {
@@ -335,7 +331,7 @@ const PlantRegister = ({ onClose }) => {
                       }}
                     />
                     <div className="text-gray-500">
-                      <div>식물 초기 사진 업로드</div>
+                      <div>식물 초기 사진(준비중)</div>
                       <div className="text-xs mt-1">PNG, JPG (최대 5MB)</div>
                       {form.imageUrl && (
                         <div className="text-xs mt-2">
@@ -444,15 +440,15 @@ const PlantRegister = ({ onClose }) => {
                   <div className="text-sm text-gray-500">
                     식물별 고유 QR 코드를 생성해 라벨로 인쇄/부착할 수 있어요.
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div
+                    className="flex items-center gap-2 rounded-xl bg-gray-300 text-white px-5 py-2 text-sm 
+                   hover:shadow-md hover:scale-[1.01] transition-all"
+                    title="준비중"
+                  >
                     <input id="qrUrl" name="qrUrl" type="hidden" />
                     <input id="qrImageUrl" name="qrImageUrl" type="hidden" />
-                    <button
-                      type="button"
-                      className="rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-white px-5 py-2 text-sm font-semibold hover:shadow-md hover:scale-[1.01] transition-all"
-                    >
-                      QR 코드 생성
-                    </button>
+                    <input type="checkbox" disabled />
+                    QR 코드 생성
                   </div>
                 </div>
               </div>
@@ -462,7 +458,7 @@ const PlantRegister = ({ onClose }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-xl bg-gradient-to-r from-sky-400 to-cyan-600 text-white 
+                className="rounded-xl bg-lime-500 text-white 
                 px-6 py-2 font-semibold hover:shadow-md hover:scale-[1.01] transition-all disabled:opacity-60"
               >
                 {loading ? "저장 중..." : "저장"}

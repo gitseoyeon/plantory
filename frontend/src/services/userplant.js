@@ -6,6 +6,11 @@ const userplantService = {
     return res.data;
   },
 
+  getAllPlants: async (page = 0, size = 10) => {
+    const res = await api.get("/api/plant/all", { params: { page, size } });
+    return res.data;
+  },
+
   getMyPlants: async (page = 0, size = 10) => {
     const res = await api.get("/api/plant", { params: { page, size } });
     return res.data;

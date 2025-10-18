@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import PlantRegister from "./plantRegister";
+import PlantList from "../components/userplant/PlantList";
 
 export default function Home() {
   const [showPlantRegister, setPlantRegister] = useState(false);
@@ -28,10 +29,10 @@ export default function Home() {
               <button
                 onClick={() => {
                   if (!isAuthenticated) {
-                    navigate("/login"); // ✅ 미인증이면 로그인으로
+                    navigate("/login"); // 미인증이면 로그인으로
                     return;
                   }
-                  setPlantRegister(true); // ✅ 인증된 경우에만 모달 오픈
+                  setPlantRegister(true); // 인증된 경우에만 모달 오픈
                 }}
                 className="bg-green-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-green-600 transition-all"
               >
@@ -59,6 +60,7 @@ export default function Home() {
             time="1일 전"
             content="햇빛이 잘 드는 곳으로 이동시켰어요 ☀️"
           />
+          <PlantList />
         </div>
 
         {/* 오른쪽: 사이드바 */}

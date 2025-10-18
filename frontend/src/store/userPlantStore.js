@@ -10,7 +10,39 @@ const useUserPlantStore = create((set, get) => ({
   error: null,
   pagination: { page: 0, size: 10, totalElements: 0, totalPages: 0 },
 
-  // 목록 조회
+  listAllPlants: async (page = 0, size = 10) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await userplantService.getAllPlants(page, size);
+      const content = Array.isArray(res?.content)
+        ? res.content
+        : Array.isArray(res)
+        ? res
+        : [];
+      set({
+        plants: content,
+        loading: false,
+        pagination: {
+          page: res?.number ?? page,
+          size: res?.size ?? size,
+          totalElements: res?.totalElements ?? content.length,
+          totalPages: res?.totalPages ?? 1,
+        },
+      });
+      return content;
+    } catch (err) {
+      set({
+        loading: false,
+        error:
+          err?.response?.data?.message ??
+          err?.message ??
+          "Failed to load plants",
+        plants: [],
+      });
+      return [];
+    }
+  },
+
   listMyPlants: async (page = 0, size = 10) => {
     set({ loading: true, error: null });
     try {
