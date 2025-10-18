@@ -1,8 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FeedCard from "../components/FeedCard";
 import Sidebar from "../components/Sidebar";
+import { useNavigate } from "react-router-dom";
+import useAuthStore from "../store/authStore";
+import PlantRegister from "./plantRegister";
 
 export default function Home() {
+  const [showPlantRegister, setPlantRegister] = useState(false);
+
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 메인 콘텐츠 영역 */}
@@ -17,7 +25,16 @@ export default function Home() {
               피드에서 친구들의 성장 일지를 구경하고, 내 기록을 공유해요.
             </p>
             <div className="flex gap-3 mt-6">
-              <button className="bg-green-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-green-600 transition-all">
+              <button
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    navigate("/login"); // ✅ 미인증이면 로그인으로
+                    return;
+                  }
+                  setPlantRegister(true); // ✅ 인증된 경우에만 모달 오픈
+                }}
+                className="bg-green-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-green-600 transition-all"
+              >
                 ✏️ 일지 작성
               </button>
               <button className="border border-green-500 text-green-600 font-semibold px-5 py-2 rounded-lg hover:bg-green-50 transition-all">
@@ -49,6 +66,16 @@ export default function Home() {
           <Sidebar />
         </div>
       </div>
+      {showPlantRegister && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setPlantRegister(false);
+          }}
+        >
+          <PlantRegister onClose={() => setPlantRegister(false)} />
+        </div>
+      )}
     </div>
   );
 }
