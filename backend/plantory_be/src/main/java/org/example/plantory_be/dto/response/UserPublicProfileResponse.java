@@ -10,9 +10,7 @@ import org.example.plantory_be.entity.User;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserPrivateProfileResponse {
-    private String email;
-    private String username;
+public class UserPublicProfileResponse {
     private String nickname;
     private String profileImageUrl;
     private String bio;
@@ -20,10 +18,8 @@ public class UserPrivateProfileResponse {
     private String interest;
     private String style;
 
-    public static UserPrivateProfileResponse fromEntity(User user) {
-        return UserPrivateProfileResponse.builder()
-                .email(user.getEmail())
-                .username(user.getUsername())
+    public static UserPublicProfileResponse fromEntity(User user) {
+        return UserPublicProfileResponse.builder()
                 .nickname(user.getNickName())
                 .profileImageUrl(user.getProfileImageUrl())
                 .bio(user.getBio())
