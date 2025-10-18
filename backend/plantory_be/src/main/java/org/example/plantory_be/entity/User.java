@@ -32,7 +32,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", nullable = false, unique = true)
     private String nickName;
 
     @Column(name = "profile_image_url", columnDefinition = "TEXT")
