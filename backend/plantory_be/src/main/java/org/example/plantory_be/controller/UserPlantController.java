@@ -3,6 +3,7 @@ package org.example.plantory_be.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantRequest;
 import org.example.plantory_be.dto.response.UserPlantResponse;
+import org.example.plantory_be.entity.PotSize;
 import org.example.plantory_be.service.UserPlantService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -54,5 +59,17 @@ public class UserPlantController {
     ) {
         userPlantService.deleteUserPlant(plantId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/potsize")
+    public ResponseEntity<List<Map<String, String>>> getAllPotSizes() {
+        List<Map<String, String>> potSizes = Arrays.stream(PotSize.values())
+                .map(size -> Map.of(
+                        "value", size.name(),
+                        "label", size.getLabel()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(potSizes);
     }
 }

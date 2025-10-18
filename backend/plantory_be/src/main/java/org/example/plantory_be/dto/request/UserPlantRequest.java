@@ -34,7 +34,7 @@ public class UserPlantRequest {
 
     private String imageUrl;
 
-    private boolean Indoor ;
+    private boolean indoor ;
 
     private String location;
 
