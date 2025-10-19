@@ -42,17 +42,25 @@ export default function Navbar() {
 
         <div className="flex gap-3">
           {isAuthenticated ? (
-            <button
-              onClick={() => {
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-                localStorage.removeItem("user");
-                window.location.href = "/login";
-              }}
-              className="text-gray-700 hover:text-green-600"
-            >
-              로그아웃
-            </button>
+            <>
+              <button
+                onClick={() => navigate("/mypage")}
+                className="text-gray-700 hover:text-green-600"
+              >
+                마이페이지
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("accessToken");
+                  localStorage.removeItem("refreshToken");
+                  localStorage.removeItem("user");
+                  window.location.href = "/login";
+                }}
+                className="text-gray-700 hover:text-green-600"
+              >
+                로그아웃
+              </button>
+            </>
           ) : (
             <>
               <button

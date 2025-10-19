@@ -10,6 +10,8 @@ import Login from "./pages/Login";
 import Register from "./pages/register";
 import Home from "./pages/home";
 import OAuthCallback from "./pages/oauthCallback";
+import MyPage from "./pages/myPage";
+import UserProfile from "./pages/userProfile";
 
 function AppLayout() {
   const location = useLocation();
@@ -26,6 +28,8 @@ function AppLayout() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/users/:userId" element={<UserProfile />} />
         </Routes>
       </div>
     </div>
@@ -33,7 +37,6 @@ function AppLayout() {
 }
 
 export default function App() {
-  // Ensure Router wraps everything, and AppLayout uses useLocation inside Router context.
   return (
     <Router>
       <AppLayout />
