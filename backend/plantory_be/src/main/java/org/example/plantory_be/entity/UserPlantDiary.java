@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_plants_diary",
         indexes = {
-                @Index(name = "idx_user_plants_plant_id", columnList = "plant_id")
+                @Index(name = "idx_user_plants_diary_plant_id", columnList = "plant_id")
         })
 @Getter
 @Setter
@@ -21,10 +21,17 @@ public class UserPlantDiary {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        private Long plant_id;
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "plant_id", nullable = false)
+        private UserPlant userPlant;
 
+        @Column(length = 500)
         private String physical;
+
+        @Column(length = 500)
         private String manage;
+
+        @Column(length = 500)
         private String preferred;
 
         @CreationTimestamp

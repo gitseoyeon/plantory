@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantRequest;
 import org.example.plantory_be.dto.response.UserPlantResponse;
 import org.example.plantory_be.entity.PotSize;
+import org.example.plantory_be.service.QRCodeService;
 import org.example.plantory_be.service.UserPlantService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class UserPlantController {
 
     private final UserPlantService userPlantService;
+    private final QRCodeService qrCodeService;
 
     @PostMapping
     public ResponseEntity<UserPlantResponse> createPlant(
@@ -82,4 +84,5 @@ public class UserPlantController {
 
         return ResponseEntity.ok(potSizes);
     }
+
 }
