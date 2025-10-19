@@ -7,7 +7,8 @@ import PlantRegister from "./plantRegister";
 import PlantList from "../components/userplant/PlantList";
 
 export default function Home() {
-  const [showPlantRegister, setPlantRegister] = useState(false);
+  const [showPopup, setShowPopup] = useState(false); //userPlant
+  const [newPlant, setNewPlant] = useState(null); //userPlant
 
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
@@ -29,12 +30,13 @@ export default function Home() {
               <button
                 onClick={() => {
                   if (!isAuthenticated) {
-                    navigate("/login"); // 미인증이면 로그인으로
+                    navigate("/login");
                     return;
                   }
-                  setPlantRegister(true); // 인증된 경우에만 모달 오픈
+                  setShowPopup(true);
                 }}
-                className="bg-green-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-green-600 transition-all"
+                className="bg-green-500 text-white font-semibold px-5 py-2 rounded-lg
+                 hover:bg-green-600 transition-all"
               >
                 ✏️ 일지 작성
               </button>
@@ -60,7 +62,7 @@ export default function Home() {
             time="1일 전"
             content="햇빛이 잘 드는 곳으로 이동시켰어요 ☀️"
           />
-          <PlantList />
+          <PlantList newPlant={newPlant} />
         </div>
 
         {/* 오른쪽: 사이드바 */}
@@ -68,14 +70,17 @@ export default function Home() {
           <Sidebar />
         </div>
       </div>
-      {showPlantRegister && (
+      {showPopup && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setPlantRegister(false);
+            if (e.target === e.currentTarget) setShowPopup(false);
           }}
         >
-          <PlantRegister onClose={() => setPlantRegister(false)} />
+          <PlantRegister
+            onClose={() => setShowPopup(false)}
+            onSuccess={(plant) => setNewPlant(plant)}
+          />
         </div>
       )}
     </div>

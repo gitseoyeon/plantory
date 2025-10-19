@@ -4,7 +4,7 @@ import PlantCard from "./PlantCard";
 
 const PAGE_SIZE = 5;
 
-const PlantList = () => {
+const PlantList = ({ newPlant }) => {
   const { listAllPlants, loading, error, pagination } = useUserPlantStore();
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(0);
@@ -16,8 +16,18 @@ const PlantList = () => {
       setItems(first || []);
       setPage(0);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // newPlant가 들어오면 리스트에 맨 앞에 삽입
+  useEffect(() => {
+    if (newPlant?.id) {
+      setItems((prev) => {
+        const alreadyExists = prev.some((p) => p.id === newPlant.id);
+        if (alreadyExists) return prev;
+        return [newPlant, ...prev];
+      });
+    }
+  }, [newPlant]);
 
   const handleMore = async () => {
     const nextPage = page + 1;
@@ -31,6 +41,10 @@ const PlantList = () => {
   const hasMore = pagination?.totalPages
     ? page + 1 < pagination.totalPages
     : true;
+
+  const handleNewPlant = (newPlant) => {
+    setItems((prev) => [newPlant, ...prev]);
+  };
 
   return (
     <section className="space-y-4">

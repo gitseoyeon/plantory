@@ -9,7 +9,7 @@ import {
 } from "../utils/plant";
 import { filterByKorean } from "../utils/korean";
 
-const PlantRegister = ({ onClose }) => {
+const PlantRegister = ({ onClose, onSuccess }) => {
   const [tab, setTab] = useState("plant");
   const today = new Date().toISOString().split("T")[0];
   const { user } = useAuthStore();
@@ -147,6 +147,7 @@ const PlantRegister = ({ onClose }) => {
     try {
       const res = await createPlant(payload);
       //console.log("[PlantRegister] createPlant result:", res);
+      onSuccess?.(res);
       onClose?.();
     } catch (err) {
       console.error("[PlantRegister] createPlant error:", err);

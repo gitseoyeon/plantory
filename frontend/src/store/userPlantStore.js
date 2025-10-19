@@ -10,6 +10,7 @@ const useUserPlantStore = create((set, get) => ({
   error: null,
   pagination: { page: 0, size: 10, totalElements: 0, totalPages: 0 },
 
+  // src/store/userPlantStore.js
   listAllPlants: async (page = 0, size = 10) => {
     set({ loading: true, error: null });
     try {
@@ -19,16 +20,20 @@ const useUserPlantStore = create((set, get) => ({
         : Array.isArray(res)
         ? res
         : [];
-      set({
-        plants: content,
+
+      set((state) => ({
+        // ✨ page===0이면 갈아끼우고, 그 외에는 누적
+        plants: page === 0 ? content : [...state.plants, ...content],
         loading: false,
         pagination: {
           page: res?.number ?? page,
           size: res?.size ?? size,
-          totalElements: res?.totalElements ?? content.length,
-          totalPages: res?.totalPages ?? 1,
+          totalElements:
+            res?.totalElements ??
+            (page === 0 ? content.length : state.pagination.totalElements),
+          totalPages: res?.totalPages ?? state.pagination.totalPages ?? 1,
         },
-      });
+      }));
       return content;
     } catch (err) {
       set({
@@ -37,7 +42,7 @@ const useUserPlantStore = create((set, get) => ({
           err?.response?.data?.message ??
           err?.message ??
           "Failed to load plants",
-        plants: [],
+        plants: page === 0 ? [] : get().plants, // 첫 페이지 실패면 비우고, 아닐 땐 유지
       });
       return [];
     }
