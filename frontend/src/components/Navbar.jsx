@@ -54,7 +54,7 @@ export default function Navbar() {
                   localStorage.removeItem("accessToken");
                   localStorage.removeItem("refreshToken");
                   localStorage.removeItem("user");
-                  window.location.href = "/login";
+                  window.location.href = "/";
                 }}
                 className="text-gray-700 hover:text-green-600"
               >
