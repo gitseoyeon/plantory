@@ -32,13 +32,24 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", nullable = false, unique = true)
     private String nickName;
 
     @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
 
+    @Enumerated(EnumType.STRING)
     private AuthProvider provider;
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    private String experience;
+
+    private String interest;
+
+    @Enumerated(EnumType.STRING)
+    private PreferStyle style;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

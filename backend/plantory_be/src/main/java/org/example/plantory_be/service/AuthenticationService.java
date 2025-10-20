@@ -29,15 +29,14 @@ public class AuthenticationService {
         String username;
 
         if (authentication.getPrincipal() instanceof User userPrincipal) {
-            username = userPrincipal.getUsername();
+            username = userPrincipal.getEmail();
         } else if (authentication.getPrincipal() instanceof UserDetails userDetails) {
             username = userDetails.getUsername();
         } else {
             username = authentication.getName();
         }
 
-        return userRepository.findByUsername(username)
-                .or(() -> userRepository.findByEmail(username))
+        return userRepository.findByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for username: " + username));
     }
 }

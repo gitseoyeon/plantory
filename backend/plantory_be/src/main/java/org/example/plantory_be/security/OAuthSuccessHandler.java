@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.plantory_be.entity.AuthProvider;
 import org.example.plantory_be.entity.User;
 import org.example.plantory_be.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +45,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
                     newUser.setNickName(generateUsername(email));
                     newUser.setProfileImageUrl(avatarUrl);
                     newUser.setPassword("");
+                    newUser.setProvider(AuthProvider.GOOGLE);
                     return userRepository.save(newUser);
                 });
 
