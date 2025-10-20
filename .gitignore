@@ -1,0 +1,40 @@
+# ---- 공통
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---- VSCode (원하면 커밋하지 않기)
+.vscode/
+
+# ---- IntelliJ / IDEA
+.idea/
+*.iml
+out/
+
+# ---- Node / React (frontend)
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/coverage/
+# 잠금파일은 팀 정책에 맞게 하나만 커밋(권장: pnpm-lock.yaml 또는 yarn.lock)
+# 아래는 예시(둘 중 하나만 커밋하려면 다른 하나는 ignore)
+# frontend/package-lock.json
+# frontend/yarn.lock
+
+# ---- Java / Spring Boot (backend)
+backend/target/
+backend/build/
+backend/.gradle/
+# 환경변수/시크릿
+backend/.env
+backend/*.properties.local
+backend/*.yml.local
+
+# ---- Gradle/Maven Wrapper는 커밋해야 함 (Wrapper 디렉토리는 제외 금지)
+# gradle/wrapper/, gradlew, gradlew.bat, .mvn/wrapper/, mvnw, mvnw.cmd 는 커밋 OK
