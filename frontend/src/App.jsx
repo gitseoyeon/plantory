@@ -11,6 +11,8 @@ import Login from "./pages/Login";
 import Register from "./pages/register";
 import Home from "./pages/home";
 import OAuthCallback from "./pages/oauthCallback";
+import MyPage from "./pages/myPage";
+import UserProfile from "./pages/userProfile";
 import PlantRegister from "./pages/plantRegister";
 import useAuthStore from "./store/authStore";
 
@@ -33,16 +35,6 @@ function AppLayout() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
-          <Route
-            path="/plantRegister"
-            element={
-              isAuthenticated ? (
-                <PlantRegister />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
         </Routes>
       </div>
     </div>
@@ -50,7 +42,6 @@ function AppLayout() {
 }
 
 export default function App() {
-  // Ensure Router wraps everything, and AppLayout uses useLocation inside Router context.
   return (
     <Router>
       <AppLayout />
