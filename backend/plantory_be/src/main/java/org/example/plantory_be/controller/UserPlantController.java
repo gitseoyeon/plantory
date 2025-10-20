@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantRequest;
 import org.example.plantory_be.dto.response.UserPlantResponse;
 import org.example.plantory_be.entity.PotSize;
-import org.example.plantory_be.service.QRCodeService;
+import org.example.plantory_be.service.UserPlantQrService;
 import org.example.plantory_be.service.UserPlantService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ import java.util.Map;
 public class UserPlantController {
 
     private final UserPlantService userPlantService;
-    private final QRCodeService qrCodeService;
+    private final UserPlantQrService userPlantQrService;
 
     @PostMapping
     public ResponseEntity<UserPlantResponse> createPlant(
@@ -85,4 +86,16 @@ public class UserPlantController {
         return ResponseEntity.ok(potSizes);
     }
 
+    //사용자화면이 아닌 테스트용도(미리보기도 가능)
+    @PostMapping("/qr")
+    public ResponseEntity<Map<String, String>> generatePlantQr() {
+
+       UserPlantQrService.QRResult result = userPlantQrService.generateQrForPlant();
+
+        Map<String, String> res = new HashMap<>();
+        res.put("qrImageUrl", result.qrImageUrl());
+        res.put("localPath", result.localPath().toString());
+
+        return ResponseEntity.ok(res);
+    }
 }
