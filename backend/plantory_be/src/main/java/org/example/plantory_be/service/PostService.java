@@ -87,7 +87,7 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
 
         if (!post.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("You are not authorized to update this post");
+            throw new UnauthorizedException("You are not authorized to delete this post");
         }
 
         post.setDeleted(true);

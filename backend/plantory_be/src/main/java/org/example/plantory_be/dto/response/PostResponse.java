@@ -23,9 +23,9 @@ public class PostResponse {
     private UserDto user;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-//    private Long likeCount;
-//    private boolean isLiked;
-//    private Long commentCount;
+    private Long likeCount;
+    private boolean isLiked;
+    private Long commentCount;
 //    private boolean isBookmarked;
 
     public static PostResponse fromEntity(Post post) {
