@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
@@ -12,12 +13,18 @@ import Home from "./pages/home";
 import OAuthCallback from "./pages/oauthCallback";
 import MyPage from "./pages/myPage";
 import UserProfile from "./pages/userProfile";
+import PlantRegister from "./pages/plantRegister";
+import useAuthStore from "./store/authStore";
 
 function AppLayout() {
   const location = useLocation();
   const hideNavbar = ["/login", "/register"].includes(location.pathname);
   // Debug: log current pathname
   console.log("Current pathname:", location.pathname);
+
+  const { isAuthenticated } = useAuthStore();
+
+  console.log(isAuthenticated);
 
   return (
     <div>
@@ -28,8 +35,6 @@ function AppLayout() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/users/:userId" element={<UserProfile />} />
         </Routes>
       </div>
     </div>
