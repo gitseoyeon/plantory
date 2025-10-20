@@ -24,6 +24,7 @@ public class UserPlantService {
     private final AuthenticationService authenticationService;
     private final UserPlantSpeciesRepository userPlantSpeciesRepository;
     private final UserPlantRepository userPlantRepository;
+    private final UserPlantQrService userPlantQrService;
 
     public UserPlantResponse createUserPlant(UserPlantRequest request) {
 
@@ -32,7 +33,7 @@ public class UserPlantService {
         UserPlantSpecies species = null;
         if (request.getSpecies_id() != null) {
             species = userPlantSpeciesRepository.findById(request.getSpecies_id())
-                    .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 종(species) ID입니다."));
+                    .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 종(species) ID 입니다."));
         }
 
         UserPlant userPlant = UserPlant.builder()
@@ -47,11 +48,19 @@ public class UserPlantService {
                 .store(request.getStore())
                 .price(request.getPrice())
                 .potSize(request.getPotSize())
-                .qrUrl(request.getQrUrl())
-                .qrImageUrl(request.getQrImageUrl())
                 .build();
 
         UserPlant saved = userPlantRepository.save(userPlant);
+
+        try {
+            if (request.isQr()) {
+                UserPlantQrService.QRResult qr = userPlantQrService.generateQrForPlant(saved.getId());
+                saved.setQrUrl(qr.qrContent());
+                saved.setQrImageUrl(qr.qrImageUrl());
+            }
+        } catch (Exception e) { // 사용자에게는 굳이 실패 알릴 필요 없을 수도 있음
+            log.warn("QR 생성 실패 - 식물 ID: {}", saved.getId(), e);
+        }
         return UserPlantResponse.fromEntity(saved);
     }
 
@@ -98,8 +107,6 @@ public class UserPlantService {
         plant.setStore(request.getStore());
         plant.setPrice(request.getPrice());
         plant.setPotSize(request.getPotSize());
-        plant.setQrUrl(request.getQrUrl());
-        plant.setQrImageUrl(request.getQrImageUrl());
 
         UserPlant updated = userPlantRepository.save(plant);
         return UserPlantResponse.fromEntity(updated);

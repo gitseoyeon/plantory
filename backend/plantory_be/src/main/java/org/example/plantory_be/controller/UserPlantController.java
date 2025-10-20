@@ -86,11 +86,11 @@ public class UserPlantController {
         return ResponseEntity.ok(potSizes);
     }
 
-    //사용자화면이 아닌 테스트용도(미리보기도 가능)
+    //사용자화면이 아닌 개발자확인용
     @PostMapping("/qr")
     public ResponseEntity<Map<String, String>> generatePlantQr() {
 
-       UserPlantQrService.QRResult result = userPlantQrService.generateQrForPlant();
+       UserPlantQrService.QRResult result = userPlantQrService.generateQrForPlant(5L);
 
         Map<String, String> res = new HashMap<>();
         res.put("qrImageUrl", result.qrImageUrl());

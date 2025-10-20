@@ -30,23 +30,23 @@ public class UserPlantQrService {
     @Value("${app.upload.dir.qr}")
     private String qrUploadDir;
 
-    @Value("${FRONTEND_URL}")
-    private String baseUrl;
+    @Value("${BACKEND_URL}")
+    private String baseUrl; //프런트에서 큐알이미지 보여줄 주소
 
 /**
  * QR 코드 생성
- * - uploads/qr/{userId}/qr_YYYYMMDDHHmmss.png 형식으로 저장
+ * - uploads/qr/{userId}/qr_YYYYMMDDHHmmss_UUID6자.png 형식으로 저장
  * - 외부 접근 URL 반환
  */
-public QRResult generateQrForPlant() {
+public QRResult generateQrForPlant(Long plantId) {
     try {
         User currentUser = authenticationService.getCurrentUser();
         if (currentUser == null) {
             throw new IllegalStateException("로그인된 사용자 정보가 없습니다.");
         }
 
-        // QR 코드에 담을 내용 (예: 사용자 이름 or 특정 페이지 URL)
-        String content = "https://plantory.kr/user/" + currentUser.getId();
+        // QR 코드에 담을 내용 : 유저 식물 상세보기 주소
+        String content = baseUrl + "/plant/" + plantId;
 
         // 사용자별 디렉토리 생성
         Path userDir = Paths.get(qrUploadDir, String.valueOf(currentUser.getId()));
@@ -54,7 +54,7 @@ public QRResult generateQrForPlant() {
 
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String fileName = "qr_" + timestamp + "_" + UUID.randomUUID().toString().substring(0, 6) + ".png";
+        String fileName = plantId + "_" + timestamp + "_" + UUID.randomUUID().toString().substring(0, 6) + ".png";
         Path outPath = userDir.resolve(fileName);
 
         // QR 생성 옵션
@@ -70,7 +70,7 @@ public QRResult generateQrForPlant() {
         MatrixToImageWriter.writeToPath(matrix, "PNG", outPath);
 
         // 공개 접근 URL 구성
-        String publicUrl = String.format("%s/uploads/qr/%d/%s", baseUrl, currentUser.getId(), fileName);
+        String publicUrl = String.format("%s/files/%d/%s", baseUrl, currentUser.getId(), fileName);
 
         return new QRResult(content, publicUrl, outPath);
 
