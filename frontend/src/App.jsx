@@ -36,6 +36,8 @@ function AppLayout() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/users/:userId" element={<UserProfile />} />
           <Route path="/plants" element={<PlantList />} />
           <Route path="/plant/:plantId" element={<PlantDetail />} />
         </Routes>

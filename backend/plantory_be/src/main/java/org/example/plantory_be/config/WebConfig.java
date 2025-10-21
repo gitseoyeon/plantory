@@ -14,11 +14,17 @@ public class  WebConfig implements WebMvcConfigurer {
     @Value("${app.upload.dir.qr}")
     private String qrUploadDir;
 
+    @Value("${app.upload.image}")
+    private String imageDir;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 예: /files/** → file:/var/plantory/uploads/qr/
         registry.addResourceHandler("/files/**")
                 .addResourceLocations("file:" + qrUploadDir + "/");
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + imageDir + "/");
 
         log.warn("물리적 위치: " + qrUploadDir);
     }

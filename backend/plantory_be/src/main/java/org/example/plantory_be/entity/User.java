@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.plantory_be.dto.request.UserProfileUpdateRequest;
+import org.example.plantory_be.dto.response.UserPrivateProfileResponse;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,5 +56,23 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    public UserPrivateProfileResponse updateProfile(UserProfileUpdateRequest profile) {
+        this.email = profile.getEmail();
+        this.username = profile.getUsername();
+        this.profileImageUrl = profile.getProfileImageUrl();
+        this.bio = profile.getBio();
+        this.experience = profile.getExperience();
+        this.style = profile.getStyle();
+
+        return UserPrivateProfileResponse.builder()
+                .email(email)
+                .username(username)
+                .profileImageUrl(profileImageUrl)
+                .bio(bio)
+                .experience(experience)
+                .style(style != null ? style.name() : null)
+                .build();
     }
 }
