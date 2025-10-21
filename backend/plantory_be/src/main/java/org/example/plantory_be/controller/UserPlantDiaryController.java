@@ -2,9 +2,7 @@ package org.example.plantory_be.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantDiaryRequest;
-import org.example.plantory_be.dto.request.UserPlantRequest;
 import org.example.plantory_be.dto.response.UserPlantDiaryResponse;
-import org.example.plantory_be.dto.response.UserPlantResponse;
 import org.example.plantory_be.service.UserPlantDiaryService;
 import org.example.plantory_be.service.UserPlantService;
 import org.springframework.data.domain.Page;
