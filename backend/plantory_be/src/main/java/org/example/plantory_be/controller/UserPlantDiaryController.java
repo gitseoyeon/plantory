@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/{plant}")
+@RequestMapping("/api/diary/{plantId}")
 @RequiredArgsConstructor
 public class UserPlantDiaryController {
     private final UserPlantService userPlantService;
@@ -52,7 +52,7 @@ public class UserPlantDiaryController {
     public ResponseEntity<Void> deleteDiary(
             @PathVariable Long diaryId
     ) {
-        userPlantService.deleteUserPlant(diaryId);
+        diaryService.deleteUserPlantDiary(diaryId);
         return ResponseEntity.noContent().build();
     }
 }
