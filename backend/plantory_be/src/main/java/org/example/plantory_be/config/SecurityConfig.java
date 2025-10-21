@@ -41,7 +41,7 @@ public class SecurityConfig {
                                 "/api/plant/species",
                                 "/api/plant/potsize"
                         ).permitAll()
-                        .requestMatchers("/files/**").permitAll()
+                        .requestMatchers("/files/**", "/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
