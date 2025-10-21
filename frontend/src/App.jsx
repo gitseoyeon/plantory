@@ -13,9 +13,9 @@ import Home from "./pages/home";
 import OAuthCallback from "./pages/oauthCallback";
 import MyPage from "./pages/myPage";
 import UserProfile from "./pages/userProfile";
-import PlantRegister from "./pages/plantRegister";
-import PlantList from "./pages/plantList"; 
+import PlantList from "./pages/plantList";
 import useAuthStore from "./store/authStore";
+import PlantDetail from "./pages/userPlantDetail";
 
 function AppLayout() {
   const location = useLocation();
@@ -37,7 +37,7 @@ function AppLayout() {
           <Route path="/register" element={<Register />} />
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
           <Route path="/plants" element={<PlantList />} />
-
+          <Route path="/plant/:plantId" element={<PlantDetail />} />
         </Routes>
       </div>
     </div>

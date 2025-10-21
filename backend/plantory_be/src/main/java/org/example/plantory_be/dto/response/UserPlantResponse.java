@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserPlantResponse {
     private Long id;
+    private Long userId;
+    private Long speciesId;
     private String name;
     private String petName;
     private String speciesName;
@@ -34,6 +36,8 @@ public class UserPlantResponse {
     public static UserPlantResponse fromEntity(UserPlant entity) {
         return UserPlantResponse.builder()
                 .id(entity.getId())
+                .userId(entity.getUser().getId())
+                .speciesId(entity.getUserPlantSpecies() != null ? entity.getUserPlantSpecies().getId() : null)
                 .name(entity.getName())
                 .petName(entity.getPetName())
                 .speciesName(entity.getUserPlantSpecies() != null ? entity.getUserPlantSpecies().getName() : null)

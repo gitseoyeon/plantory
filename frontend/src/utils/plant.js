@@ -55,5 +55,6 @@ export function buildCreatePlantPayload(form) {
     price: toNumberOrNull(form.price),
     potSize: trimOrNull(form.potSize),
     imageUrl: trimOrNull(form.imageUrl),
+    qr: !!form.qr,
   };
 }
