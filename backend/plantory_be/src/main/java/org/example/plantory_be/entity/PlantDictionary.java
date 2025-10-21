@@ -12,6 +12,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "plant_dictionary")
@@ -60,9 +62,13 @@ public class PlantDictionary {
 
     @Column(name = "seasonal_care", columnDefinition = "TEXT") private String seasonalCare; // 계절별 관리법
 
-    @Column(name = "created_at") private LocalDateTime createdAt; // 생성일
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt; // 생성일
 
-    @Column(name = "updated_at") private LocalDateTime updatedAt; // 수정일
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;// 수정일
 
     // 테스트용
     @Column(name = "perenual_id")

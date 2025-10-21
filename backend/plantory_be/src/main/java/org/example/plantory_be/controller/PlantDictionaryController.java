@@ -27,7 +27,7 @@ public class PlantDictionaryController {
         return " Perenual 데이터 저장 완료!";
     }
 
-    // ✅ Perenual API 데이터 가져와 DB에 저장 (테스트용)
+    // Perenual API 데이터 가져와 DB에 저장 (테스트용)
     @GetMapping("/fetch")
     public String fetchAndSavePlants() {
         plantDictionaryService.fetchAndSavePlants();
