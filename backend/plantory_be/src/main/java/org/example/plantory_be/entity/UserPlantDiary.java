@@ -3,7 +3,10 @@ package org.example.plantory_be.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,17 +25,28 @@ public class UserPlantDiary {
         private Long id;
 
         @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "user_id", nullable = false)
+        private User user;
+
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "plant_id", nullable = false)
+        @OnDelete(action = OnDeleteAction.CASCADE)
         private UserPlant userPlant;
 
-        @Column(length = 500)
+        @Column
+        private LocalDate diaryDate;
+
+        @Column(length = 200)
         private String physical;
 
-        @Column(length = 500)
+        @Column(length = 200)
         private String manage;
 
-        @Column(length = 500)
+        @Column(length = 200)
         private String preferred;
+
+        @Column(name = "care_notes", length = 200)
+        private String careNotes;
 
         @CreationTimestamp
         @Column(name = "created_at", updatable = false)
