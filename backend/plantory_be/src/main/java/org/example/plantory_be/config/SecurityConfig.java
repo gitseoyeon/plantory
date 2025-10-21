@@ -42,7 +42,7 @@ public class SecurityConfig {
                                 "/api/plant/potsize",
                                 "/api/plants/**"
                         ).permitAll()
-                        .requestMatchers("/files/**", "/uploads/**").permitAll()
+                        .requestMatchers("/files/**", "/uploads/**", "/api/uploads/**" ).permitAll()
                         .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
