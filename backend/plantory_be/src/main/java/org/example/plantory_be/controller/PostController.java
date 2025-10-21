@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.PostRequest;
 import org.example.plantory_be.dto.response.PostResponse;
+import org.example.plantory_be.entity.LikeTargetType;
 import org.example.plantory_be.service.LikeService;
 import org.example.plantory_be.service.PostService;
 import org.springframework.data.domain.Page;
@@ -74,8 +75,8 @@ public class PostController {
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<?> toggleLike(@PathVariable Long postId) {
-        boolean isLiked = likeService.toggleLike(postId);
-        Long likeCount = likeService.getLikeCount(postId);
+        boolean isLiked = likeService.toggleLike(postId, LikeTargetType.POST);
+        Long likeCount = likeService.getLikeCount(postId, LikeTargetType.POST);
 
         return ResponseEntity.ok().body(Map.of(
                 "isLiked", isLiked,
