@@ -70,17 +70,19 @@ const PlantList = ({ newPlant }) => {
         />
       ))}
 
-      {/* More 버튼 */}
-      <div className="flex items-center justify-center">
-        <button
-          type="button"
-          onClick={handleMore}
-          disabled={loading || !hasMore}
-          className="px-4 py-2 text-sm font-semibold rounded-xl border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
-        >
-          {loading ? "불러오는 중..." : hasMore ? "More" : "더 이상 없음"}
-        </button>
-      </div>
+      {/* More 버튼 (아이템이 있을 때만 표시) */}
+      {!loading && !error && items.length > 0 && (
+        <div className="flex items-center justify-center">
+          <button
+            type="button"
+            onClick={handleMore}
+            disabled={loading || !hasMore}
+            className="px-4 py-2 text-sm font-semibold rounded-xl border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
+          >
+            {loading ? "불러오는 중..." : hasMore ? "More" : "더 이상 없음"}
+          </button>
+        </div>
+      )}
     </section>
   );
 };

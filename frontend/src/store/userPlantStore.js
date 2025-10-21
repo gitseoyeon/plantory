@@ -1,6 +1,5 @@
-// src/store/userPlantStore.js
 import { create } from "zustand";
-import userplantService from "../services/userplant"; // ✅ default import
+import userplantService from "../services/userplant";
 
 const useUserPlantStore = create((set, get) => ({
   plants: [],
@@ -10,7 +9,6 @@ const useUserPlantStore = create((set, get) => ({
   error: null,
   pagination: { page: 0, size: 10, totalElements: 0, totalPages: 0 },
 
-  // src/store/userPlantStore.js
   listAllPlants: async (page = 0, size = 10) => {
     set({ loading: true, error: null });
     try {
@@ -22,7 +20,7 @@ const useUserPlantStore = create((set, get) => ({
         : [];
 
       set((state) => ({
-        // ✨ page===0이면 갈아끼우고, 그 외에는 누적
+        // page===0이면 갈아끼우고, 그 외에는 누적
         plants: page === 0 ? content : [...state.plants, ...content],
         loading: false,
         pagination: {
