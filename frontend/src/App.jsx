@@ -15,7 +15,7 @@ import MyPage from "./pages/myPage";
 import UserProfile from "./pages/userProfile";
 import PlantList from "./pages/plantList";
 import useAuthStore from "./store/authStore";
-import PlantDetail from "./pages/plantDetail";
+import PlantDetail from "./pages/userPlantDetail";
 
 function AppLayout() {
   const location = useLocation();
