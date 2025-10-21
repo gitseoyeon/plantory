@@ -25,4 +25,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT COUNT(p) FROM Post p WHERE p.user.id = :userId AND p.deleted = false")
     long countByUserIdAndNotDeleted(@Param("userId") Long userId);
+
+    boolean existsByIdAndDeletedFalse(Long id);
 }

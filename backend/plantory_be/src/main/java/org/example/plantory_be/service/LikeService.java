@@ -1,13 +1,13 @@
 package org.example.plantory_be.service;
 
 import org.example.plantory_be.entity.Like;
-import org.example.plantory_be.entity.Post;
+import org.example.plantory_be.entity.LikeTargetType;
 import org.example.plantory_be.entity.User;
 import org.example.plantory_be.exception.BadRequestException;
+import org.example.plantory_be.repository.CommentRepository;
 import org.example.plantory_be.repository.LikeRepository;
-import org.example.plantory_be.repository.PostRepository;
-import org.example.plantory_be.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.example.plantory_be.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,24 +18,22 @@ public class LikeService {
 
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final AuthenticationService authenticationService;
 
-    public boolean toggleLike(Long postId) {
+    public boolean toggleLike(Long targetId, LikeTargetType targetType) {
         User currentUser = authenticationService.getCurrentUser();
 
-        Post post = postRepository.findByIdAndNotDeleted(postId)
-                .orElseThrow(() -> new BadRequestException("Post not found"));
-
-        boolean alreadyLiked = likeRepository.existsByUserAndPost(currentUser, post);
+        boolean alreadyLiked = likeRepository.existsByUserAndTargetIdAndTargetType(currentUser, targetId, targetType);
 
         if (alreadyLiked) {
-            likeRepository.deleteByUserAndPost(currentUser, post);
+            likeRepository.deleteByUserAndTargetIdAndTargetType(currentUser, targetId, targetType);
             return false;
         } else {
             Like like = Like.builder()
                     .user(currentUser)
-                    .post(post)
+                    .targetType(targetType)
+                    .targetId(targetId)
                     .build();
             likeRepository.save(like);
             return true;
@@ -43,15 +41,20 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public Long getLikeCount(Long postId) { return likeRepository.countByPostId(postId); }
+    public Long getLikeCount(Long targetId, LikeTargetType targetType) {
+        return likeRepository.countByTargetTypeAndId(targetId, targetType);
+    }
 
     @Transactional(readOnly = true)
-    public boolean isLikedByCurrentUser(Long postId) {
+    public boolean isLikedByCurrentUser(Long targetId, LikeTargetType targetType) {
         User currentUser = authenticationService.getCurrentUser();
 
-        Post post = postRepository.findByIdAndNotDeleted(postId)
-                .orElseThrow(() -> new BadRequestException("Post not found"));
+        boolean existsAndNotDeleted = switch (targetType) {
+            case POST -> postRepository.existsByIdAndDeletedFalse(targetId);
+            case COMMENT -> commentRepository.existsByIdAndDeletedFalse(targetId);
+            default -> throw new BadRequestException("Unsupported resource type: " + targetType);
+        };
 
-        return likeRepository.existsByUserAndPost(currentUser, post);
+        return likeRepository.existsByUserAndTargetIdAndTargetType(currentUser, targetId, targetType);
     }
 }
