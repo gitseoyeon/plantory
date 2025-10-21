@@ -57,6 +57,14 @@ public class UserPlantController {
         return ResponseEntity.ok(userPlants);
     }
 
+    @GetMapping("/{plantId}")
+    public ResponseEntity<UserPlantResponse> getUserPlant(
+            @PathVariable Long plantId
+    ) {
+        UserPlantResponse response = userPlantService.getUserPlant(plantId);
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{plantId}")
     public ResponseEntity<UserPlantResponse> updatePlant(
             @PathVariable Long plantId,

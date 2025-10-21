@@ -81,6 +81,15 @@ public class UserPlantService {
         return page.map(UserPlantResponse::fromEntity);
     }
 
+    @Transactional(readOnly = true)
+    public UserPlantResponse getUserPlant(Long plantId) {
+        UserPlant plant = userPlantRepository.findById(plantId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 식물입니다."));
+
+        return UserPlantResponse.fromEntity(plant);
+    }
+
+
     public UserPlantResponse updateUserPlant(Long plantId, UserPlantRequest request) {
 
         UserPlant plant = userPlantRepository.findById(plantId)

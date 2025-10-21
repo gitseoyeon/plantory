@@ -31,12 +31,15 @@ public class UserPlantQrService {
     private String qrUploadDir;
 
     @Value("${BACKEND_URL}")
-    private String baseUrl; //프런트에서 큐알이미지 보여줄 주소
+    private String baseUrl;
+
+    @Value("${FRONTEND_URL}")
+    private String frontUrl; //프런트에서 큐알에 보여줄 주소
+
 
 /**
  * QR 코드 생성
- * - uploads/qr/{userId}/qr_YYYYMMDDHHmmss_UUID6자.png 형식으로 저장
- * - 외부 접근 URL 반환
+ * - uploads/qr/{userId}/plantId_YYYYMMDD_HHmmss_UUID6자.png 형식으로 저장
  */
 public QRResult generateQrForPlant(Long plantId) {
     try {
@@ -46,7 +49,7 @@ public QRResult generateQrForPlant(Long plantId) {
         }
 
         // QR 코드에 담을 내용 : 유저 식물 상세보기 주소
-        String content = baseUrl + "/plant/" + plantId;
+        String content = frontUrl + "/plant/" + plantId;
 
         // 사용자별 디렉토리 생성
         Path userDir = Paths.get(qrUploadDir, String.valueOf(currentUser.getId()));
