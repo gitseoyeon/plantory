@@ -35,6 +35,7 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
     price: "",
     potSize: "",
     imageUrl: "",
+    qr: false,
   });
 
   useEffect(() => {
@@ -137,6 +138,7 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
     }
 
     const payload = buildCreatePlantPayload({ ...form, speciesId });
+    //console.log(payload);
 
     try {
       const res = await createPlant(payload);
@@ -359,6 +361,30 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <div className="text-sm text-gray-500">
+              식물별 고유 QR 코드를 생성해 라벨로 인쇄/부착할 수 있어요.
+            </div>
+            <div
+              className="flex items-center gap-2 rounded-xl bg-lime-600 text-white px-5 py-2 text-sm 
+                   hover:shadow-md hover:scale-[1.01] transition-all"
+            >
+              <input
+                id="qr"
+                name="qr"
+                type="checkbox"
+                checked={form.qr}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, qr: e.target.checked }))
+                }
+                className="h-4 w-4 text-green-600"
+              />
+              <label htmlFor="qr" className="text-sm text-gray-700">
+                QR 코드 생성
+              </label>
+            </div>
           </div>
         </div>
       </section>

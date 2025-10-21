@@ -41,8 +41,6 @@ public class UserPlantRequest {
 
     private PotSize potSize;
 
-    private String qrUrl;
-
-    private String qrImageUrl;
+    private boolean qr;
 
 }
