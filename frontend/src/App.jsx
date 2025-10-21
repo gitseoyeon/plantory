@@ -14,6 +14,7 @@ import OAuthCallback from "./pages/oauthCallback";
 import MyPage from "./pages/myPage";
 import UserProfile from "./pages/userProfile";
 import PlantRegister from "./pages/plantRegister";
+import PlantList from "./pages/plantList"; 
 import useAuthStore from "./store/authStore";
 
 function AppLayout() {
@@ -37,6 +38,7 @@ function AppLayout() {
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/users/:userId" element={<UserProfile />} />
+          <Route path="/plants" element={<PlantList />} />
         </Routes>
       </div>
     </div>

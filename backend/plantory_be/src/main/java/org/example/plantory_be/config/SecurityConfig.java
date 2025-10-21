@@ -39,7 +39,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/plant/all",
                                 "/api/plant/species",
-                                "/api/plant/potsize"
+                                "/api/plant/potsize",
+                                "/api/plants/**"
                         ).permitAll()
                         .requestMatchers("/files/**", "/uploads/**").permitAll()
                         .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**").permitAll()
