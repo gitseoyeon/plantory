@@ -1,42 +1,54 @@
 import React, { useEffect, useState } from "react";
 import { getAllPlants, searchPlants } from "../services/plant";
 import PlantDictionaryCard from "../components/plant/PlantDictionaryCard";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const PlantDictionaryList = () => {
   const [plants, setPlants] = useState([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [isSearching, setIsSearching] = useState(false); // ✅ 검색 중 여부
+  const [isSearching, setIsSearching] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const fetchAllPlants = async () => {
-    try {
-      setLoading(true);
-      const data = await getAllPlants();
-      setPlants(data);
-      setIsSearching(false); // ✅ 전체보기로 돌아오면 검색 아님
-    } catch (error) {
-      console.error("식물 데이터 불러오기 실패:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // ✅ URL 파라미터에서 검색어 복원
   useEffect(() => {
-    fetchAllPlants();
-  }, []);
+    const params = new URLSearchParams(location.search);
+    const savedQuery = params.get("query") || "";
+    setQuery(savedQuery);
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = savedQuery
+          ? await searchPlants({ query: savedQuery })
+          : await getAllPlants();
+        setPlants(data);
+        setIsSearching(!!savedQuery);
+      } catch (error) {
+        console.error("식물 데이터 불러오기 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [location.search]);
+
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const results = await searchPlants({ query });
-      setPlants(results);
-      setIsSearching(true); // ✅ 검색 중 상태로 변경
-    } catch (error) {
-      console.error("검색 실패:", error);
-    } finally {
-      setLoading(false);
+    if (!query.trim()) {
+      navigate("/dictionary");
+    } else {
+      navigate(`/dictionary?query=${encodeURIComponent(query)}`);
     }
+  };
+
+  // ✅ 전체보기
+  const handleShowAll = () => {
+    setQuery("");
+    navigate("/dictionary");
   };
 
   if (loading) return <p className="p-6 text-gray-600">로딩 중...</p>;
@@ -84,10 +96,7 @@ const PlantDictionaryList = () => {
       {isSearching && (
         <div className="text-center mt-10">
           <button
-            onClick={() => {
-              setQuery("");
-              fetchAllPlants();
-            }}
+            onClick={handleShowAll}
             className="inline-block bg-green-100 hover:bg-green-200 text-green-700 font-medium px-5 py-2.5 rounded-full transition-all duration-200"
           >
             🌿 전체 목록으로 돌아가기

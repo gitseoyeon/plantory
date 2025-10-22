@@ -1,27 +1,38 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const PlantDictionaryCard = ({ plant }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleClick = () => {
-    navigate(`/dictionary/${plant.id}`);
+    console.log("🪴 클릭한 식물:", plant);
+    navigate(`/dictionary/${plant.perenualId}`, {
+      state: {
+        fromSearch: true,
+        query: new URLSearchParams(location.search).get("query") || "",
+      },
+    });
   };
 
   return (
     <div
       onClick={handleClick}
-      className="bg-white rounded-2xl shadow p-4 hover:shadow-lg transition cursor-pointer"
+      className="bg-white shadow-md rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition"
     >
       <img
-        src={plant.imageUrl || "/placeholder.png"}
+        src={plant.imageUrl || "https://via.placeholder.com/200"}
         alt={plant.commonName || plant.koreanName || "식물 이미지"}
-        className="w-full h-40 object-cover rounded-xl mb-3"
+        className="w-full h-48 object-cover"
       />
-      <h2 className="text-lg font-semibold">
-        {plant.koreanName || plant.commonName || "이름 없음"}
-      </h2>
-      <p className="text-sm text-gray-500">{plant.scientificName || ""}</p>
+      <div className="p-3">
+        <h3 className="font-semibold text-gray-800">
+          {plant.commonName || plant.koreanName || plant.englishName || "이름 없음"}
+        </h3>
+        <p className="text-sm text-gray-500 italic">
+          {plant.scientificName || ""}
+        </p>
+      </div>
     </div>
   );
 };

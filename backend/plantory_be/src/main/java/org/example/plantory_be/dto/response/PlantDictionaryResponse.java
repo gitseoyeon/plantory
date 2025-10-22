@@ -13,6 +13,7 @@ import org.example.plantory_be.entity.PlantDictionary;
 public class PlantDictionaryResponse {
 
     private Long id;
+    private Long perenualId;
     private String commonName;
     private String koreanName;
     private String englishName;
@@ -24,6 +25,7 @@ public class PlantDictionaryResponse {
     public static PlantDictionaryResponse fromEntity(PlantDictionary entity) {
         return PlantDictionaryResponse.builder()
             .id(entity.getId())
+            .perenualId(entity.getPerenualId())
             .commonName(entity.getCommonName())
             .koreanName(entity.getKoreanName())
             .englishName(entity.getEnglishName())
@@ -34,4 +36,3 @@ public class PlantDictionaryResponse {
             .build();
     }
 }
-
