@@ -72,7 +72,7 @@ public class PlantDictionary {
 
     // 테스트용
     @Column(name = "perenual_id")
-    private Integer perenualId;
+    private Long perenualId;
 
     @Column(name = "common_name")
     private String commonName;

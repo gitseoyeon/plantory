@@ -3,8 +3,11 @@ package org.example.plantory_be.controller;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.entity.PlantDictionary;
+import org.example.plantory_be.repository.PlantDictionaryRepository;
 import org.example.plantory_be.service.PlantDictionaryService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,11 +18,25 @@ public class PlantDictionaryController {
 
     private final PlantDictionaryService plantDictionaryService;
 
-    // 전체 식물 조회 API
+
     @GetMapping
     public List<PlantDictionary> getAllPlants() {
         return plantDictionaryService.getAllPlants();
     }
+
+    // ✅ Controller
+    @GetMapping("/perenual/{perenualId}")
+    public ResponseEntity<PlantDictionary> getPlantByPerenualId(@PathVariable Long perenualId) {
+        PlantDictionary plant = plantDictionaryService.getPlantByPerenualId(perenualId);
+        if (plant != null) {
+            return ResponseEntity.ok(plant);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
 
     @GetMapping("/plants/save")
     public String savePlantsFromApi() {

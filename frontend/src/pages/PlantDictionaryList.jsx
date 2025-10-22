@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { getAllPlants } from "../services/plant";
-import PlantCard from "../components/plant/PlantCard";
+import PlantDictionaryCard from "../components/plant/PlantDictionaryCard";
 
-const PlantList = () => {
+const PlantDictionaryList = () => {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +29,7 @@ const PlantList = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {plants.length > 0 ? (
           plants.map((plant) => (
-            <PlantCard key={plant.id} plant={plant} />
+            <PlantDictionaryCard key={plant.id} plant={plant} />
           ))
         ) : (
           <p>표시할 식물이 없습니다.</p>
@@ -39,4 +39,4 @@ const PlantList = () => {
   );
 };
 
-export default PlantList;
+export default PlantDictionaryList;
