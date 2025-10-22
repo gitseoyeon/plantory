@@ -49,6 +49,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
+    public PostResponse getPost(Long postId) {
+        User currentUser = authenticationService.getCurrentUser();
+        Post post = postRepository.findByIdAndNotDeleted(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+        return PostResponse.fromEntity(post);
+    }
+
+    @Transactional(readOnly = true)
     public Page<PostResponse> getUserPosts(Long userId, Pageable pageable) {
         User currentUser = authenticationService.getCurrentUser();
         Page<Post> posts = postRepository.findByUserIdAndNotDeleted(userId, pageable);
