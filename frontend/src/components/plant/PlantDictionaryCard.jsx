@@ -5,7 +5,7 @@ const PlantDictionaryCard = ({ plant }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/plants/${plant.perenualId}`);
+    navigate(`/dictionary/${plant.id}`);
   };
 
   return (
@@ -15,10 +15,12 @@ const PlantDictionaryCard = ({ plant }) => {
     >
       <img
         src={plant.imageUrl || "/placeholder.png"}
-        alt={plant.commonName}
+        alt={plant.commonName || plant.koreanName || "식물 이미지"}
         className="w-full h-40 object-cover rounded-xl mb-3"
       />
-      <h2 className="text-lg font-semibold">{plant.commonName || "이름 없음"}</h2>
+      <h2 className="text-lg font-semibold">
+        {plant.koreanName || plant.commonName || "이름 없음"}
+      </h2>
       <p className="text-sm text-gray-500">{plant.scientificName || ""}</p>
     </div>
   );
