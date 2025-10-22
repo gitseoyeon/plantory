@@ -1,12 +1,10 @@
 package org.example.plantory_be.controller;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantDiaryRequest;
 import org.example.plantory_be.dto.response.UserPlantDiaryResponse;
 import org.example.plantory_be.service.UserPlantDiaryService;
 import org.example.plantory_be.service.UserPlantImageService;
-import org.example.plantory_be.service.UserPlantService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
