@@ -255,8 +255,8 @@ const EditProfileForm = ({ user, onUpdateSuccess, onCancel }) => {
           type="text"
           name="username"
           value={formData.username}
-          disabled
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-300 outline-none"
         />
       </div>
 
@@ -281,8 +281,8 @@ const EditProfileForm = ({ user, onUpdateSuccess, onCancel }) => {
           type="text"
           name="nickname"
           value={formData.nickname}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-300 outline-none"
+          disabled
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg  bg-gray-100 cursor-not-allowed"
         />
       </div>
 
