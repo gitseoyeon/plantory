@@ -7,7 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Login from "./pages/Login";
+import Login from "./pages/login";
 import Register from "./pages/register";
 import Home from "./pages/home";
 import OAuthCallback from "./pages/oauthCallback";
