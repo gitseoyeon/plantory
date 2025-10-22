@@ -14,6 +14,9 @@ public class  WebConfig implements WebMvcConfigurer {
     @Value("${app.upload.dir.qr}")
     private String qrUploadDir;
 
+    @Value("${app.upload.dir.plant}")
+    private String plantUploadDir;
+
     @Value("${app.upload.image}")
     private String imageDir;
 
@@ -23,9 +26,11 @@ public class  WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/files/**")
                 .addResourceLocations("file:" + qrUploadDir + "/");
 
+        registry.addResourceHandler("/files/**")
+                .addResourceLocations("file:" + plantUploadDir + "/");
+
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + imageDir + "/");
 
-        log.warn("물리적 위치: " + qrUploadDir);
     }
 }

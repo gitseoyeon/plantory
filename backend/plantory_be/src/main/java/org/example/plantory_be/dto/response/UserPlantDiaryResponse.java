@@ -9,6 +9,8 @@ import org.example.plantory_be.entity.UserPlantDiary;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -25,6 +27,8 @@ public class UserPlantDiaryResponse {
     private String careNotes;
     private LocalDateTime createdAt;
 
+    private List<UserPlantPhotoResponse> userPlantPhotos;
+
     public static UserPlantDiaryResponse fromEntity(UserPlantDiary entity) {
         return UserPlantDiaryResponse.builder()
                 .id(entity.getId())
@@ -33,7 +37,15 @@ public class UserPlantDiaryResponse {
                 .physical(entity.getPhysical())
                 .manage(entity.getManage())
                 .preferred(entity.getPreferred())
+                .careNotes(entity.getCareNotes())
                 .createdAt(entity.getCreatedAt())
+                .userPlantPhotos(
+                        entity.getUserPlantPhotos() != null
+                                ? entity.getUserPlantPhotos().stream()
+                                .map(UserPlantPhotoResponse::fromEntity)
+                                .collect(Collectors.toList())
+                                : null
+                )
                 .build();
     }
 }

@@ -32,8 +32,8 @@ public class UserPlantPhoto {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private UserPlantDiary userPlantDiary;
 
-    @Column
-    private String image_url;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(length = 200)
     private String memo;

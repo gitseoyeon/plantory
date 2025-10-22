@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -31,4 +32,6 @@ public class UserPlantDiaryRequest {
 
     @Size(max = 200, message = "특이사항은 200자 이내여야 합니다.")
     private String careNotes;
+
+    private List<UserPlantPhotoRequest> userPlantPhotos;
 }

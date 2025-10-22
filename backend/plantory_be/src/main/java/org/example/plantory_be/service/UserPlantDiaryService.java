@@ -7,12 +7,15 @@ import org.example.plantory_be.dto.response.UserPlantDiaryResponse;
 import org.example.plantory_be.entity.User;
 import org.example.plantory_be.entity.UserPlant;
 import org.example.plantory_be.entity.UserPlantDiary;
+import org.example.plantory_be.entity.UserPlantPhoto;
 import org.example.plantory_be.repository.UserPlantDiaryRepository;
 import org.example.plantory_be.repository.UserPlantRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,22 @@ public class UserPlantDiaryService {
                 .preferred(request.getPreferred())
                 .careNotes(request.getCareNotes())
                 .build();
+
+        if (request.getUserPlantPhotos() != null) {
+            List<UserPlantPhoto> photos = request.getUserPlantPhotos().stream()
+                    .map(photoReq -> {
+                        UserPlantPhoto photo = UserPlantPhoto.builder()
+                                .user(currentUser)
+                                .imageUrl(photoReq.getImageUrl())
+                                .memo(photoReq.getMemo())
+                                .userPlantDiary(diary)
+                                .build();
+                        return photo;
+                    })
+                    .toList();
+
+            diary.setUserPlantPhotos(photos);
+        }
 
         UserPlantDiary saved = diaryRepository.save(diary);
         return UserPlantDiaryResponse.fromEntity(saved);

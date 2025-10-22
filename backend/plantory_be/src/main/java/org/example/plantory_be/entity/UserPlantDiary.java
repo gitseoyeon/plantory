@@ -8,6 +8,8 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "user_plants_diary",
@@ -32,6 +34,10 @@ public class UserPlantDiary {
         @JoinColumn(name = "plant_id", nullable = false)
         @OnDelete(action = OnDeleteAction.CASCADE)
         private UserPlant userPlant;
+
+        @OneToMany(mappedBy = "userPlantDiary", cascade = CascadeType.ALL, orphanRemoval = true)
+        @Builder.Default
+        private List<UserPlantPhoto> userPlantPhotos = new ArrayList<>();
 
         @Column
         private LocalDate diaryDate;
