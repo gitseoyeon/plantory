@@ -1,18 +1,17 @@
 import React, { useState } from "react";
-import useUserPlantStore from "../../store/userPlantStore";
+import useUserPlantDiaryStore from "../../store/userPlantStore";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
   const today = new Date().toISOString().split("T")[0];
-  const { createPlant } = useUserPlantStore();
+  const { createDiary } = useUserPlantDiaryStore();
 
   const [form, setForm] = useState({
     physical: "",
     manage: "",
     preferred: "",
-    acquiredDate: today,
-    memo1: "",
-    memo2: "",
+    careNotes: "",
+    diaryDate: today,
   });
 
   const BLANK_ROW = { file: null, fileName: "", memo: "" };
@@ -58,8 +57,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
     setGrowthPhotos((prev) => {
       const next = [...prev];
       next.splice(idx, 1); // 행 제거(숨김 + 값 소멸)
-      // 모두 지워지면 최소 1행 유지
-      return next.length ? next : [{ ...BLANK_ROW }];
+      return next.length ? next : [{ ...BLANK_ROW }]; // 모두 지워지면 최소 1행 유지
     });
   };
 
@@ -68,8 +66,11 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
     e.preventDefault();
     setLoading(true);
 
+    if (!plantId) {
+      alert("성장 기록할 반려 식물을 선택해주세요!.");
+    }
+
     try {
-      // 파일 업로드 “준비중” — fileName만 보냄
       const photosPayload = growthPhotos
         .filter((p) => p.file || p.fileName || p.memo) // 빈 행 제외
         .map((p) => ({
@@ -79,14 +80,16 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
 
       const payload = {
         ...form,
-        growthPhotos: photosPayload, // 백엔드 스키마에 맞춰 조정
+        plantId,
+        //growthPhotos: photosPayload, // 백엔드 스키마에 맞춰 조정
       };
 
-      const res = await createPlant(payload);
+      console.log(payload);
+      const res = await createDiary(payload);
       onSuccess?.(res);
-      onClose?.();
+      //onClose?.();
     } catch (err) {
-      console.error("[PlantDiaryForm] createPlant error:", err);
+      console.error("[PlantDiaryForm] createDiary error:", err);
       alert("등록 실패");
     } finally {
       setLoading(false);
@@ -95,7 +98,6 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
 
   return (
     <form onSubmit={onSubmit} className="space-y-8">
-      {/* 상세 정보 */}
       <section className="bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -122,7 +124,6 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             type="text"
             className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
             placeholder="관리 (예: 물 주기, 분갈이, 가지치기 등)"
-            required
           />
           <input
             id="preferred"
@@ -132,12 +133,11 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             type="text"
             className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
             placeholder="환경 (예: 적정 온도, 습도, 일조량 등)"
-            required
           />
           <input
             id="specialNote"
             name="memo1"
-            value={form.memo1}
+            value={form.careNotes}
             onChange={onChange}
             type="text"
             className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
@@ -159,7 +159,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             <input
               id="acquiredDate"
               name="acquiredDate"
-              value={form.acquiredDate}
+              value={form.diaryDate}
               onChange={onChange}
               type="date"
               className="rounded-xl border border-gray-300 p-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"

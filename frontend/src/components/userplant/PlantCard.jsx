@@ -16,9 +16,13 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
     petName,
     acquiredDate,
     imageUrl,
+    indoor,
+    store,
+    price,
     speciesName,
     location,
     potSize,
+    potSizeLabel,
     qrImageUrl,
     userId,
   } = plant;
@@ -101,7 +105,6 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
         </div>
       </div>
 
-      {/* 메타 */}
       <div className="text-gray-700 text-sm leading-relaxed">
         {speciesName || location || potSize ? (
           <div className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -120,7 +123,7 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
             {potSize && (
               <span className="inline-flex items-center">
                 <span className="text-gray-500 mr-1">화분</span>
-                <span className="font-medium">{potSize}</span>
+                <span className="font-medium">{potSizeLabel}</span>
               </span>
             )}
           </div>

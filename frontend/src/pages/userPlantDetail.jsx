@@ -42,6 +42,14 @@ const PlantDetail = () => {
               {plant.petName}
             </p>
           )}
+          <p className="text-gray-500 text-sm mt-1 flex items-center  gap-10">
+            <span>🌿 종 : {plant.speciesName || "-"}</span>
+            <span>
+              {plant.acquiredDate
+                ? ` 구입일/분양일 : ${plant.acquiredDate}`
+                : "-"}
+            </span>
+          </p>
         </div>
 
         {plant.qrImageUrl && (
@@ -70,19 +78,18 @@ const PlantDetail = () => {
         />
       </div>
       <div className="text-gray-700 text-base space-y-2">
-        <p className="flex items-center gap-4">
-          <span>🌿 종 : {plant.speciesName || "-"}</span>
-          <p className="text-gray-500 text-sm mt-1">
-            {plant.acquiredDate ? `구입/분양일 : ${plant.acquiredDate}` : "-"}
-          </p>
-        </p>
-
-        <p className="flex items-center gap-4">
+        <p className="flex items-center gap-10">
           <span>📍 위치 : {plant.location || "-"}</span>
-          <span>🪴 화분 크기 : {plant.potSize || "-"}</span>
+          <span>🏪 구입처 : {plant.store || "-"}</span>
+        </p>
+        <p className="flex items-center gap-10">
+          <span>
+            💵 가격 : {plant.price ? `${plant.price.toLocaleString()}원` : "-"}
+          </span>
+          <span>🪴 화분 크기 : {plant.potSizeLabel || "-"}</span>
         </p>
       </div>
-      {/* 
+
       <section>
         <h2 className="text-xl font-semibold mb-4 text-sky-600 flex items-center gap-2">
           📖 성장일지
@@ -97,7 +104,6 @@ const PlantDetail = () => {
           </li>
         </ul>
       </section>
-      */}
     </div>
   );
 };
