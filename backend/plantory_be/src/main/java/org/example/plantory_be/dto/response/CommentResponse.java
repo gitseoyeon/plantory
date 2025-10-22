@@ -24,7 +24,7 @@ public class CommentResponse {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
-                .parentId(comment.getParent().getId())
+                .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                 .user(UserDto.fromEntity(comment.getUser()))
                 .createdAt(comment.getCreatedAt())
                 .build();
