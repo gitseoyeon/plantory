@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantRequest;
 import org.example.plantory_be.dto.response.UserPlantResponse;
 import org.example.plantory_be.entity.PotSize;
-import org.example.plantory_be.service.QRCodeService;
+import org.example.plantory_be.service.UserPlantQrService;
 import org.example.plantory_be.service.UserPlantService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ import java.util.Map;
 public class UserPlantController {
 
     private final UserPlantService userPlantService;
-    private final QRCodeService qrCodeService;
+    private final UserPlantQrService userPlantQrService;
 
     @PostMapping
     public ResponseEntity<UserPlantResponse> createPlant(
@@ -56,6 +57,14 @@ public class UserPlantController {
         return ResponseEntity.ok(userPlants);
     }
 
+    @GetMapping("/{plantId}")
+    public ResponseEntity<UserPlantResponse> getUserPlant(
+            @PathVariable Long plantId
+    ) {
+        UserPlantResponse response = userPlantService.getUserPlant(plantId);
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{plantId}")
     public ResponseEntity<UserPlantResponse> updatePlant(
             @PathVariable Long plantId,
@@ -85,4 +94,16 @@ public class UserPlantController {
         return ResponseEntity.ok(potSizes);
     }
 
+    //사용자화면이 아닌 개발자확인용
+    @PostMapping("/qr")
+    public ResponseEntity<Map<String, String>> generatePlantQr() {
+
+       UserPlantQrService.QRResult result = userPlantQrService.generateQrForPlant(5L);
+
+        Map<String, String> res = new HashMap<>();
+        res.put("qrImageUrl", result.qrImageUrl());
+        res.put("localPath", result.localPath().toString());
+
+        return ResponseEntity.ok(res);
+    }
 }

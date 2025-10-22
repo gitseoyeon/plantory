@@ -1,6 +1,7 @@
 package org.example.plantory_be.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.plantory_be.dto.request.UserProfileUpdateRequest;
 import org.example.plantory_be.dto.response.UserPrivateProfileResponse;
 import org.example.plantory_be.dto.response.UserPublicProfileResponse;
 import org.example.plantory_be.entity.User;
@@ -29,5 +30,10 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("유저 정보를 찾을 수 없습니다."));
 
         return UserPublicProfileResponse.fromEntity(user);
+    }
+
+    public UserPrivateProfileResponse modifyUserProfile(UserProfileUpdateRequest request) {
+        User user = authenticationService.getCurrentUser();
+        return user.updateProfile(request);
     }
 }

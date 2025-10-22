@@ -36,11 +36,14 @@ export default function Home() {
                   setShowPopup(true);
                 }}
                 className="bg-green-500 text-white font-semibold px-5 py-2 rounded-lg
-                 hover:bg-green-600 transition-all"
+              hover:bg-green-600 transition-all"
               >
                 ✏️ 일지 작성
               </button>
-              <button className="border border-green-500 text-green-600 font-semibold px-5 py-2 rounded-lg hover:bg-green-50 transition-all">
+              <button
+                onClick={() => navigate("/community")}
+                className="border border-green-500 text-green-600 font-semibold px-5 py-2 rounded-lg hover:bg-green-50 transition-all"
+              >
                 💬 커뮤니티
               </button>
             </div>
