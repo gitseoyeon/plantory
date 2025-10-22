@@ -30,12 +30,11 @@ public class UserPlantQrService {
     @Value("${app.upload.dir.qr}")
     private String qrUploadDir;
 
-    @Value("${BACKEND_URL}")
+    @Value("${backend.url}")
     private String baseUrl;
 
-    @Value("${FRONTEND_URL}")
+    @Value("${frontend.url}")
     private String frontUrl; //프런트에서 큐알에 보여줄 주소
-
 
 /**
  * QR 코드 생성
