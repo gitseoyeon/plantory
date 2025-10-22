@@ -23,15 +23,20 @@ public class PlantDictionaryService {
     @Value("${perenual.api.base-url}")
     private String baseUrl;
 
-    // 전체 식물 목록 조회
+
     public List<PlantDictionary> getAllPlants() {
         return plantDictionaryRepository.findAll();
     }
 
-    // Perenual API에서 데이터 받아와 DB에 저장하는 기능
+
+    public PlantDictionary getPlantByPerenualId(Long perenualId) {
+        return plantDictionaryRepository.findByPerenualId(perenualId).orElse(null);
+    }
+
+    // Perenual API 데이터 가져와 DB에 저장
     public void fetchAndSavePlants() {
         RestTemplate restTemplate = new RestTemplate();
-        String url = baseUrl + "/species-list?key=" + apiKey + "&page=1"; // 1페이지만 테스트
+        String url = baseUrl + "/species-list?key=" + apiKey + "&page=1"; // 1페이지만 테스트용
 
         String response = restTemplate.getForObject(url, String.class);
         JSONObject json = new JSONObject(response);
@@ -41,18 +46,33 @@ public class PlantDictionaryService {
 
         for (int i = 0; i < dataArray.length(); i++) {
             JSONObject plantJson = dataArray.getJSONObject(i);
+            Long perenualId = Long.valueOf(plantJson.getInt("id"));
+
+            // DB 중복 방지
+            if (plantDictionaryRepository.findByPerenualId(perenualId).isPresent()) {
+                continue;
+            }
 
             PlantDictionary plant = new PlantDictionary();
-            plant.setPerenualId(plantJson.getInt("id"));
+            plant.setPerenualId(perenualId);
             plant.setCommonName(plantJson.optString("common_name", "Unknown"));
-            plant.setScientificName(plantJson.getJSONArray("scientific_name").optString(0, ""));
+
+
+            plant.setScientificName(
+                plantJson.has("scientific_name") && plantJson.get("scientific_name") instanceof JSONArray
+                    ? plantJson.getJSONArray("scientific_name").optString(0, "")
+                    : plantJson.optString("scientific_name", "")
+            );
+
+
             plant.setOtherName(
-                plantJson.has("other_name") && plantJson.getJSONArray("other_name").length() > 0
+                plantJson.has("other_name") && plantJson.get("other_name") instanceof JSONArray &&
+                    plantJson.getJSONArray("other_name").length() > 0
                     ? plantJson.getJSONArray("other_name").optString(0, "")
                     : ""
             );
 
-            // 이미지 처리
+
             if (plantJson.has("default_image") && !plantJson.isNull("default_image")) {
                 JSONObject imageObj = plantJson.getJSONObject("default_image");
                 plant.setImageUrl(imageObj.optString("regular_url", ""));
@@ -63,9 +83,5 @@ public class PlantDictionaryService {
 
         plantDictionaryRepository.saveAll(plants);
         System.out.println(plants.size() + "개 식물 저장 완료!");
-    }
-
-    public PlantDictionary getPlantById(Long id) {
-        return plantDictionaryRepository.findById(id).orElse(null);
     }
 }
