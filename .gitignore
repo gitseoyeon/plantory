@@ -26,6 +26,8 @@ frontend/coverage/
 # 아래는 예시(둘 중 하나만 커밋하려면 다른 하나는 ignore)
 # frontend/package-lock.json
 # frontend/yarn.lock
+frontend/package-lock.json
+package-lock.json
 
 # ---- Java / Spring Boot (backend)
 backend/target/
