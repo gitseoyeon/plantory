@@ -64,4 +64,8 @@ public class PlantDictionaryService {
         plantDictionaryRepository.saveAll(plants);
         System.out.println(plants.size() + "개 식물 저장 완료!");
     }
+
+    public PlantDictionary getPlantById(Long id) {
+        return plantDictionaryRepository.findById(id).orElse(null);
+    }
 }

@@ -4,7 +4,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.entity.PlantDictionary;
 import org.example.plantory_be.service.PlantDictionaryService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,7 +17,7 @@ public class PlantDictionaryController {
 
     private final PlantDictionaryService plantDictionaryService;
 
-    // 전체 식물 조회 API
+
     @GetMapping
     public List<PlantDictionary> getAllPlants() {
         return plantDictionaryService.getAllPlants();
@@ -25,6 +27,16 @@ public class PlantDictionaryController {
     public String savePlantsFromApi() {
         plantDictionaryService.fetchAndSavePlants();
         return " Perenual 데이터 저장 완료!";
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PlantDictionary> getPlantById(@PathVariable Long id) {
+        PlantDictionary plant = plantDictionaryService.getPlantById(id);
+        if (plant != null) {
+            return ResponseEntity.ok(plant);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Perenual API 데이터 가져와 DB에 저장 (테스트용)
