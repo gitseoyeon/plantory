@@ -1,5 +1,6 @@
 package org.example.plantory_be.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UserPlantDiaryRequest {
 
+    @NotNull(message = "성장 기록을 등록할 반려 식물을 선택 해주세요.")
     private Long plantId;
 
     private LocalDate diaryDate;
