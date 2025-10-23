@@ -81,4 +81,8 @@ public class AuthService {
             throw new AuthenticationException("로그인 정보가 올바르지 않습니다.");
         }
     }
+
+    public Boolean isDuplicatedNickname(String nickname) {
+        return userRepository.existsByNickName(nickname);
+    }
 }
