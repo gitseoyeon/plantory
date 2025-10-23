@@ -11,4 +11,6 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     Page<Notification> findByReceiverIdOrderByCreatedAtDesc(Long receiverId, Pageable pageable);
     List<Notification> findAllByReceiverId(Long receiverId);
+
+    void deleteAllByReceiverId(Long receiverId);
 }

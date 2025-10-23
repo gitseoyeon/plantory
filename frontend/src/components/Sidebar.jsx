@@ -1,6 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { getAllPlants } from "../services/plant";
-import { getNotifications, markAsRead } from "../services/notification";
+import {
+  getNotifications,
+  markAsRead,
+  deleteNotification,
+  deleteAllNotifications,
+} from "../services/notification";
+import { Trash2 } from "lucide-react";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 
@@ -10,16 +16,15 @@ export default function Sidebar() {
   const [loading, setLoading] = useState(true);
   const storedUser = localStorage.getItem("user");
   const userId = storedUser ? JSON.parse(storedUser).id : null;
-
   const stompClient = useRef(null);
 
+  // 🌱 식물 & 알림 초기 로드
   useEffect(() => {
     const fetchPlants = async () => {
       try {
         const allPlants = await getAllPlants();
         const shuffled = allPlants.sort(() => 0.5 - Math.random());
-        const randomThree = shuffled.slice(0, 3);
-        setPlants(randomThree);
+        setPlants(shuffled.slice(0, 3));
       } catch (err) {
         console.error("❌ 식물 백과사전 불러오기 실패:", err);
       } finally {
@@ -40,35 +45,45 @@ export default function Sidebar() {
     fetchNotifications();
   }, []);
 
-  // 🌐 WebSocket 연결 (STOMP)
+  // 🌐 WebSocket 연결
   useEffect(() => {
-    if (!userId) {
-      console.warn("⚠️ userId가 없음 — WebSocket 구독 생략");
-      return;
-    }
-
+    if (!userId) return;
     const socket = new SockJS(`${import.meta.env.VITE_API_URL}/ws`);
     stompClient.current = Stomp.over(socket);
 
     stompClient.current.connect({}, () => {
-      console.log("✅ WebSocket 연결 성공");
-      console.log("📡 구독 경로:", `/topic/notifications/${userId}`);
-
       stompClient.current.subscribe(`/topic/notifications/${userId}`, (msg) => {
-        console.log("📩 새 알림 수신:", msg.body);
         const newNotif = JSON.parse(msg.body);
         setNotifications((prev) => [newNotif, ...prev]);
       });
     });
 
     return () => {
-      if (stompClient.current && stompClient.current.connected) {
-        stompClient.current.disconnect(() => {
-          console.log("🔌 WebSocket 연결 해제");
-        });
-      }
+      if (stompClient.current?.connected) stompClient.current.disconnect();
     };
   }, [userId]);
+
+  // ✅ 단일 알림 삭제
+  const handleDelete = async (id) => {
+    if (!window.confirm("이 알림을 삭제하시겠습니까?")) return;
+    try {
+      await deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      console.error("❌ 알림 삭제 실패:", err);
+    }
+  };
+
+  // ✅ 전체 알림 삭제
+  const handleDeleteAll = async () => {
+    if (!window.confirm("모든 알림을 삭제하시겠습니까?")) return;
+    try {
+      await deleteAllNotifications();
+      setNotifications([]);
+    } catch (err) {
+      console.error("❌ 전체 알림 삭제 실패:", err);
+    }
+  };
 
   const handleRead = async (id) => {
     try {
@@ -89,9 +104,9 @@ export default function Sidebar() {
     );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       {/* 🌿 식물 백과사전 */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
+      <section className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <h3 className="font-semibold text-lg mb-3">📌 식물 정보</h3>
         <ul className="space-y-3">
           {plants.map((p) => (
@@ -99,7 +114,7 @@ export default function Sidebar() {
               key={p.id}
               className="flex items-center space-x-3 border-b border-gray-100 pb-3 last:border-0"
             >
-              <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-green-50">
+              <div className="w-14 h-14 rounded-lg overflow-hidden bg-green-50">
                 {p.imageUrl ? (
                   <img
                     src={p.imageUrl}
@@ -110,7 +125,6 @@ export default function Sidebar() {
                   <div className="w-full h-full bg-green-100"></div>
                 )}
               </div>
-
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-800 truncate">
                   {p.koreanName || "이름 없음"}
@@ -125,11 +139,21 @@ export default function Sidebar() {
             </li>
           ))}
         </ul>
-      </div>
+      </section>
 
       {/* 🔔 알림 목록 */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
-        <h3 className="font-semibold text-lg mb-3">🔔 알림</h3>
+      <section className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-semibold text-lg">🔔 알림</h3>
+          {notifications.length > 0 && (
+            <button
+              onClick={handleDeleteAll}
+              className="text-sm text-gray-500 hover:text-red-500 transition"
+            >
+              전체 삭제
+            </button>
+          )}
+        </div>
 
         {notifications.length === 0 ? (
           <p className="text-gray-500 text-sm">새로운 알림이 없습니다.</p>
@@ -142,33 +166,42 @@ export default function Sidebar() {
               return (
                 <li
                   key={n.id}
-                  onClick={() => handleRead(n.id)}
-                  className={`cursor-pointer py-3 px-2 rounded-md hover:bg-gray-50 transition
-          ${n.read ? "text-gray-400" : "text-gray-800 font-semibold"}
-        `}
+                  className={`flex justify-between items-center py-3 px-2 hover:bg-gray-50 transition ${
+                    n.read ? "text-gray-400" : "text-gray-800 font-semibold"
+                  }`}
                 >
-                  <div className="flex justify-between items-center">
-                    {/* 아이콘 + 내용 */}
+                  {/* 내용 */}
+                  <div
+                    className="flex-1 cursor-pointer"
+                    onClick={() => handleRead(n.id)}
+                  >
                     <span className="truncate flex items-center gap-1">
                       {isComment && <span className="text-blue-400">💬</span>}
                       {isLike && <span className="text-red-400">❤️</span>}
                       <span>{n.content}</span>
                     </span>
-
-                    {/* 시간 */}
-                    <span className="text-xs text-gray-400 ml-2">
+                    <span className="block text-xs text-gray-400 ml-1">
                       {new Date(n.createdAt).toLocaleTimeString("ko-KR", {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
                     </span>
                   </div>
+
+                  {/* 휴지통 버튼 */}
+                  <button
+                    onClick={() => handleDelete(n.id)}
+                    className="ml-3 text-gray-400 hover:text-red-500 transition"
+                    title="삭제"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </li>
               );
             })}
           </ul>
         )}
-      </div>
+      </section>
     </div>
   );
 }

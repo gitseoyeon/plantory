@@ -62,3 +62,25 @@ export const markAllAsRead = async () => {
     throw err;
   }
 };
+
+// 단일 삭제
+export const deleteNotification = async (id) => {
+  const token = localStorage.getItem("accessToken");
+  await axios.delete(`${API_BASE}/api/notifications/${id}`, {
+    withCredentials: true,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : undefined,
+    },
+  });
+};
+
+// 전체 삭제
+export const deleteAllNotifications = async () => {
+  const token = localStorage.getItem("accessToken");
+  await axios.delete(`${API_BASE}/api/notifications/all`, {
+    withCredentials: true,
+    headers: {
+      Authorization: token ? `Bearer ${token}` : undefined,
+    },
+  });
+};

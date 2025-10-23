@@ -185,7 +185,7 @@ export default function Home() {
         </div>
 
         {/* 사이드바 */}
-        <div className="w-80 h-auto bg-white rounded-xl border border-gray-200 shadow-sm self-start mt-10">
+        <div className="w-80 h-auto rounded-xl self-start mt-10">
           <Sidebar />
         </div>
       </div>

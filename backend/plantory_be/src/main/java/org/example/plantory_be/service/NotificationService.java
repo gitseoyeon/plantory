@@ -3,6 +3,7 @@ package org.example.plantory_be.service;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.response.NotificationResponse;
 import org.example.plantory_be.entity.Notification;
+import org.example.plantory_be.entity.User;
 import org.example.plantory_be.repository.NotificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,5 +40,17 @@ public class NotificationService {
 
     public Notification saveNotification(Notification notification) {
         return notificationRepository.save(notification);
+    }
+
+    public void removeNotification(Long id) {
+        authenticationService.getCurrentUser();
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 알림입니다."));
+        notificationRepository.delete(notification);
+    }
+
+    public void removeAllNotification() {
+        User user = authenticationService.getCurrentUser();
+        notificationRepository.deleteAllByReceiverId(user.getId());
     }
 }
