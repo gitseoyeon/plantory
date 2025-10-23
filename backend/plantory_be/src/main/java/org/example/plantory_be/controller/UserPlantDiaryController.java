@@ -3,8 +3,8 @@ package org.example.plantory_be.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantDiaryRequest;
 import org.example.plantory_be.dto.response.UserPlantDiaryResponse;
+import org.example.plantory_be.service.UserPlantDiaryImageService;
 import org.example.plantory_be.service.UserPlantDiaryService;
-import org.example.plantory_be.service.UserPlantImageService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserPlantDiaryController {
     private final UserPlantDiaryService diaryService;
-    private final UserPlantImageService imageService;
+    private final UserPlantDiaryImageService imageService;
 
     @PostMapping
     public ResponseEntity<UserPlantDiaryResponse> createDiary(

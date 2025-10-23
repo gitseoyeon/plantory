@@ -4,14 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantRequest;
 import org.example.plantory_be.dto.response.UserPlantResponse;
 import org.example.plantory_be.entity.PotSize;
+import org.example.plantory_be.service.UserPlantImageService;
 import org.example.plantory_be.service.UserPlantQrService;
 import org.example.plantory_be.service.UserPlantService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,6 +29,7 @@ public class UserPlantController {
 
     private final UserPlantService userPlantService;
     private final UserPlantQrService userPlantQrService;
+    private final UserPlantImageService imageService;
 
     @PostMapping
     public ResponseEntity<UserPlantResponse> createPlant(
@@ -94,7 +98,19 @@ public class UserPlantController {
         return ResponseEntity.ok(potSizes);
     }
 
-    //사용자화면이 아닌 개발자확인용
+    @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> uploadPlantPhoto(
+            @RequestParam("file") MultipartFile file
+    ) {
+        var result = imageService.saveOne(file);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("fileName", result.getFileName());
+        body.put("imageUrl", result.getImageUrl()); // 프런트 미리보기 <img src> 가능
+        return ResponseEntity.ok(body);
+    }
+
+    //QR 프런트화면이 아닌 개발자확인용
     @PostMapping("/qr")
     public ResponseEntity<Map<String, String>> generatePlantQr() {
 

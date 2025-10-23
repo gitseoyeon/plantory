@@ -19,14 +19,15 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserPlantImageService {
+public class UserPlantDiaryImageService {
 
     private final AuthenticationService authenticationService;
 
-    @Value("${app.upload.dir.qr}")
-    private String qrUploadDir;     // Uploads/qr/유저Id/timestamp_랜덤6자 - 유저식물 등록의 초기 사진
+    @Value("${app.upload.dir.plant}")
+    private String plantUploadDir; // uploads/plant - 성장 사진
 
-    public UploadResult saveOne(MultipartFile file) {
+
+    public UploadResult saveOne(Long plantId, MultipartFile file) {
         try {
             if (file == null || file.isEmpty()) {
                 throw new IllegalArgumentException("업로드할 파일이 없습니다.");
@@ -35,23 +36,23 @@ public class UserPlantImageService {
             var user = authenticationService.getCurrentUser();
             Long userId = user.getId();
 
-            Path baseDir = Paths.get(qrUploadDir).toAbsolutePath().normalize();
+            Path baseDir = Paths.get(plantUploadDir).toAbsolutePath().normalize();
 
-            Path targetDir = baseDir.resolve(String.valueOf(userId));
+            Path targetDir = baseDir.resolve(String.valueOf(userId)).resolve(String.valueOf(plantId));
             Files.createDirectories(targetDir);
 
             String timestamp = LocalDateTime.now()
                     .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
             String original = file.getOriginalFilename();
             String ext = (original != null && original.contains(".")) ? original.substring(original.lastIndexOf('.')) : "";
-            String filename = timestamp + "_" + UUID.randomUUID().toString().substring(0, 10) + ext;
+            String filename = "dr_" + timestamp + "_" + UUID.randomUUID().toString().substring(0, 6) + ext;
             Path out = targetDir.resolve(filename);
 
             // 저장
             Files.copy(file.getInputStream(), out, StandardCopyOption.REPLACE_EXISTING);
 
-            // 공개 URL: /files/qr/{userId}/{filename}
-            String publicUrl = String.format("/files/plant/%d/%s", userId, filename);
+            // 공개 URL: /files/plant/{userId}/{plantId}/{filename}
+            String publicUrl = String.format("/files/plant/%d/%d/%s", userId, plantId, filename);
 
             return new UploadResult(filename, publicUrl);
 
