@@ -8,6 +8,7 @@ import org.example.plantory_be.repository.NotificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public class NotificationService {
         notifications.forEach(n -> n.setRead(true));
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Notification saveNotification(Notification notification) {
         return notificationRepository.save(notification);
     }

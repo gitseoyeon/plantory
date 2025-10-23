@@ -17,6 +17,7 @@ export default function Sidebar() {
   const storedUser = localStorage.getItem("user");
   const userId = storedUser ? JSON.parse(storedUser).id : null;
   const stompClient = useRef(null);
+  const connected = useRef(false);
 
   // 🌱 식물 & 알림 초기 로드
   useEffect(() => {
@@ -45,21 +46,49 @@ export default function Sidebar() {
     fetchNotifications();
   }, []);
 
-  // 🌐 WebSocket 연결
   useEffect(() => {
     if (!userId) return;
-    const socket = new SockJS(`${import.meta.env.VITE_API_URL}/ws`);
-    stompClient.current = Stomp.over(socket);
 
-    stompClient.current.connect({}, () => {
-      stompClient.current.subscribe(`/topic/notifications/${userId}`, (msg) => {
-        const newNotif = JSON.parse(msg.body);
-        setNotifications((prev) => [newNotif, ...prev]);
-      });
-    });
+    // ✅ 중복 연결 방지 플래그
+    if (stompClient.current?.connected || connected.current) {
+      console.log("⚠️ 이미 WebSocket이 연결되어 있음 — 중복 구독 방지");
+      return;
+    }
+
+    // 먼저 알림을 불러온 후 WebSocket 연결
+    getNotifications()
+      .then((data) => {
+        setNotifications(data);
+
+        const socket = new SockJS(`${import.meta.env.VITE_API_URL}/ws`);
+        const client = Stomp.over(socket);
+        stompClient.current = client;
+
+        client.connect(
+          {},
+          () => {
+            if (connected.current) return; // ✅ 두 번째 구독 차단
+            connected.current = true;
+
+            console.log("✅ WebSocket 연결 성공");
+            client.subscribe(`/topic/notifications/${userId}`, (msg) => {
+              const newNotif = JSON.parse(msg.body);
+              console.log("📩 새 알림 수신:", newNotif);
+              setNotifications((prev) => [newNotif, ...prev]);
+            });
+          },
+          (error) => console.error("❌ WebSocket 연결 실패:", error)
+        );
+      })
+      .catch((err) => console.error("❌ 알림 불러오기 실패:", err));
 
     return () => {
-      if (stompClient.current?.connected) stompClient.current.disconnect();
+      if (stompClient.current && stompClient.current.connected) {
+        stompClient.current.disconnect(() => {
+          console.log("🔌 WebSocket 연결 해제");
+          connected.current = false;
+        });
+      }
     };
   }, [userId]);
 

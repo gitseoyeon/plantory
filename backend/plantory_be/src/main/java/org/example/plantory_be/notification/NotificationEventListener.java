@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.plantory_be.entity.Notification;
 import org.example.plantory_be.service.NotificationService;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.OffsetDateTime;
 
@@ -17,8 +17,7 @@ public class NotificationEventListener {
     private final RedisPublisher redisPublisher;
     private final NotificationService notificationService;
 
-    @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNotification(NotificationEvent event) {
         Notification notification = Notification.builder()
                 .receiverId(event.getReceiverId())
