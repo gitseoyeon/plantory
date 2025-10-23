@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import useUserPlantDiaryStore from "../../store/userPlantStore";
-import { RiDeleteBin6Line } from "react-icons/ri";
+import useUserPlantDiaryStore from "../../store/userDiaryStore";
 
 const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
   const today = new Date().toISOString().split("T")[0];
-  const { createDiary } = useUserPlantDiaryStore();
+  const createDiary = useUserPlantDiaryStore((s) => s.createDiary);
 
   const [form, setForm] = useState({
     physical: "",
@@ -14,80 +13,107 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
     diaryDate: today,
   });
 
-  const BLANK_ROW = { file: null, fileName: "", memo: "" };
-
-  // 성장 사진 + 메모 동적 행
-  const [growthPhotos, setGrowthPhotos] = useState([{ ...BLANK_ROW }]);
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [memo, setMemo] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 일반 입력 변경
+  const uploadPlantPhoto = async (plantId, file) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token || token === "undefined" || token === "null") {
+        throw new Error("유효한 토큰이 없습니다. 다시 로그인해주세요.");
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadUrl = `${
+        import.meta.env.VITE_API_URL
+      }/api/diary/photos/${plantId}`;
+      console.log(
+        "[uploadPlantPhoto] 요청 URL:",
+        uploadUrl,
+        "plantId:",
+        plantId,
+        "file:",
+        file.name
+      );
+
+      const res = await fetch(uploadUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("[uploadPlantPhoto] 서버 응답 오류:", res.status, text);
+        throw new Error(`업로드 실패 (${res.status})`);
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        console.log("[uploadPlantPhoto] 서버 응답:", data);
+        return data; // { imageUrl: "..." } 예상
+      } else {
+        const text = await res.text();
+        console.error("[uploadPlantPhoto] JSON 아님:", text);
+        throw new Error("서버가 JSON 대신 HTML을 반환했습니다.");
+      }
+    } catch (err) {
+      console.error("[uploadPlantPhoto] 에러:", err);
+      throw err;
+    }
+  };
+
+  // 파일 선택
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files?.[0];
+    console.log("selectedFile:", selectedFile);
+    if (!selectedFile) return;
+
+    setFile(selectedFile);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
+
+    try {
+      const res = await uploadPlantPhoto(plantId, selectedFile);
+      setUploadedUrl(res.imageUrl || res.imageUrlPath || res.fileName || "");
+      //console.log("업로드 완료 - imageUrl:", res);
+      setForm((prev) => ({
+        ...prev,
+        userPlantPhotos: [{ imageUrl: res.imageUrl, memo }],
+      }));
+    } catch (err) {
+      alert("이미지 업로드 실패: " + (err.message || err));
+    }
+  };
+
   const onChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 사진/메모 행 제어
-  const handlePhotoFileChange = (idx, file) => {
-    setGrowthPhotos((prev) => {
-      const next = [...prev];
-      next[idx] = {
-        ...next[idx],
-        file: file ?? null,
-        fileName: file?.name ?? "",
-      };
-      // 마지막 행에 파일이 들어왔다면 새 행 추가
-      const isLast = idx === prev.length - 1;
-      if (file && isLast) next.push({ ...BLANK_ROW });
-      return next;
-    });
-  };
-
-  const handlePhotoMemoChange = (idx, memo) => {
-    setGrowthPhotos((prev) => {
-      const next = [...prev];
-      next[idx] = { ...next[idx], memo };
-      return next;
-    });
-  };
-
-  const removePhotoRow = (idx) => {
-    // 첫 행(0)은 삭제 금지 — 줄 정렬 유지를 위해 버튼도 숨김 처리
-    if (idx === 0) return;
-
-    setGrowthPhotos((prev) => {
-      const next = [...prev];
-      next.splice(idx, 1); // 행 제거(숨김 + 값 소멸)
-      return next.length ? next : [{ ...BLANK_ROW }]; // 모두 지워지면 최소 1행 유지
-    });
-  };
-
-  // 제출
   const onSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-
     if (!plantId) {
-      alert("성장 기록할 반려 식물을 선택해주세요!.");
+      alert("반려 식물을 선택하세요.");
+      return;
     }
-
+    setLoading(true);
     try {
-      const photosPayload = growthPhotos
-        .filter((p) => p.file || p.fileName || p.memo) // 빈 행 제외
-        .map((p) => ({
-          imageUrl: p.fileName || null,
-          memo: p.memo || "",
-        }));
-
-      const payload = {
-        ...form,
-        plantId,
-        //growthPhotos: photosPayload, // 백엔드 스키마에 맞춰 조정
-      };
-
-      console.log(payload);
+      const photosPayload = uploadedUrl
+        ? [{ imageUrl: uploadedUrl, memo }]
+        : [];
+      const payload = { ...form, plantId, userPlantPhotos: photosPayload };
+      //console.log("[payload]", payload);
       const res = await createDiary(payload);
       onSuccess?.(res);
-      //onClose?.();
+      onClose?.();
     } catch (err) {
       console.error("[PlantDiaryForm] createDiary error:", err);
       alert("등록 실패");
@@ -98,10 +124,11 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
 
   return (
     <form onSubmit={onSubmit} className="space-y-8">
+      {/* 기본 정보 */}
       <section className="bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
-            상세 정보{plantId}
+            상세 정보 #{plantId}
           </h2>
         </div>
 
@@ -112,7 +139,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             value={form.physical}
             onChange={onChange}
             type="text"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 placeholder:font-semibold focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
             placeholder="[필수] 생육 (예: 현재 크기, 성장 단계 등)"
             required
           />
@@ -122,8 +149,8 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             value={form.manage}
             onChange={onChange}
             type="text"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
-            placeholder="관리 (예: 물 주기, 분갈이, 가지치기 등)"
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            placeholder="관리 (예: 물 주기, 가지치기 등)"
           />
           <input
             id="preferred"
@@ -131,98 +158,61 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             value={form.preferred}
             onChange={onChange}
             type="text"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
-            placeholder="환경 (예: 적정 온도, 습도, 일조량 등)"
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            placeholder="환경 (예: 온도, 습도, 일조량)"
           />
           <input
-            id="specialNote"
-            name="memo1"
+            id="careNotes"
+            name="careNotes"
             value={form.careNotes}
             onChange={onChange}
             type="text"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
-            placeholder="특이 사항(예: 병충해, 주의점 등)"
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            placeholder="특이 사항(예: 병충해 등)"
           />
         </div>
       </section>
 
-      {/* 성장 기록 */}
+      {/* 사진 + 메모 */}
       <section className="bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">성장 기록</h2>
+          <h2 className="text-lg font-semibold text-gray-800">성장 사진</h2>
         </div>
 
         <div className="p-5 space-y-4">
-          {/* 날짜 */}
-          <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-4 items-center">
-            <span className="text-sm text-gray-600">기록 날짜</span>
+          <label className="inline-flex flex-col items-start gap-2 cursor-pointer">
+            <span className="text-sm text-gray-600">사진 선택</span>
             <input
-              id="acquiredDate"
-              name="acquiredDate"
-              value={form.diaryDate}
-              onChange={onChange}
-              type="date"
-              className="rounded-xl border border-gray-300 p-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
-              aria-label="기록일자"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
             />
-          </div>
+            <div className="w-full rounded-xl border border-dashed border-gray-300 p-3 text-sm text-gray-600 hover:border-gray-400 bg-white">
+              {file ? file.name : "이미지 파일 선택"}
+            </div>
+          </label>
 
-          {/* 사진/메모 행 */}
-          <div className="space-y-3">
-            {growthPhotos.map((row, idx) => (
-              <div key={idx} className="flex items-center gap-3">
-                {/* 파일 선택 */}
-                <label
-                  className="shrink-0 inline-flex items-center justify-center
-                             h-[46px] min-w-[180px] px-4
-                             rounded-xl border border-dashed border-gray-300
-                             text-sm text-gray-600 hover:border-gray-400 cursor-pointer
-                             bg-white"
-                >
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) =>
-                      handlePhotoFileChange(idx, e.target.files?.[0])
-                    }
-                  />
-                  {row.fileName ? `선택됨: ${row.fileName}` : "성장 사진 선택"}
-                </label>
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="preview"
+              className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+            />
+          )}
 
-                {/* 메모 */}
-                <input
-                  type="text"
-                  value={row.memo}
-                  onChange={(e) => handlePhotoMemoChange(idx, e.target.value)}
-                  className="flex-1 h-[46px] rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 
-                             focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
-                  placeholder="사진 메모"
-                />
-
-                {/* 삭제 버튼: 첫 행은 숨김(자기 자리만 유지) / 2행부터 노출 */}
-                {idx === 0 ? (
-                  <div className="shrink-0 w-8 h-8" aria-hidden="true" />
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => removePhotoRow(idx)}
-                    className="shrink-0 inline-flex items-center justify-center
-                               w-8 h-8 p-0 m-0 rounded-md text-red-500 hover:text-red-600
-                               bg-transparent"
-                    title="행 삭제"
-                  >
-                    <RiDeleteBin6Line size={18} />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+          <input
+            type="text"
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            placeholder="사진 메모"
+          />
         </div>
       </section>
 
-      {/* 버튼 영역 */}
-      <div className="flex flex-wrap gap-3 justify-center">
+      {/* 저장/취소 버튼 */}
+      <div className="flex justify-center gap-3">
         <button
           type="submit"
           disabled={loading}

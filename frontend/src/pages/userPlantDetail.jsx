@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import useUserPlantStore from "../store/userPlantStore";
 import noImage from "../assets/no_image.png";
+import useUserPlantDiaryStore from "../store/userDiaryStore";
 
 const PlantDetail = () => {
   const { plantId } = useParams();
@@ -9,6 +10,7 @@ const PlantDetail = () => {
   const passedPlant = location.state?.plant;
   const { getPlantById } = useUserPlantStore();
   const [plant, setPlant] = useState(passedPlant);
+  const { listPlantDiary, diaries } = useUserPlantDiaryStore();
 
   useEffect(() => {
     if (!passedPlant && plantId) {
@@ -23,6 +25,10 @@ const PlantDetail = () => {
       fetchPlant();
     }
   }, [plantId, passedPlant, getPlantById]);
+
+  useEffect(() => {
+    listPlantDiary(plantId);
+  }, []);
 
   if (!plant) {
     return (
