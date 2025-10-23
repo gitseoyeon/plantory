@@ -14,6 +14,7 @@ public class NotificationResponse {
     private Long id;
     private String content;
     private String type;
+    private Long targetId;
     private boolean read;
     private String createdAt;
 
@@ -22,6 +23,7 @@ public class NotificationResponse {
                 .id(notification.getId())
                 .content(notification.getContent())
                 .type(notification.getType())
+                .targetId(notification.getTargetId())
                 .read(notification.isRead())
                 .createdAt(notification.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
