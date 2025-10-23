@@ -162,7 +162,7 @@ export default function Home() {
                         </div>
                         <div className="text-sm text-gray-400 flex items-center gap-2">
                           <span className="truncate">
-                            {post.user?.username || "익명"}
+                            {post.user?.nickName || "익명"}
                           </span>
                           <span className="text-gray-300">|</span>
                           <span>
