@@ -71,7 +71,7 @@ public class UserPlantDiaryService {
 
         authenticationService.getCurrentUser();
 
-        Page<UserPlantDiary> page = diaryRepository.findByUserPlantId(plantId, pageable);
+        Page<UserPlantDiary> page = diaryRepository.findByUserPlantIdOrderByCreatedAtDesc(plantId, pageable);
         return page.map(UserPlantDiaryResponse::fromEntity);
     }
 
