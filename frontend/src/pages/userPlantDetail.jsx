@@ -14,6 +14,7 @@ const PlantDetail = () => {
 
   useEffect(() => {
     if (!passedPlant && plantId) {
+      //처음한번은 목록에서 받고, 사용자가 새로고침할경우 처리
       const fetchPlant = async () => {
         try {
           const data = await getPlantById(plantId);
@@ -27,8 +28,8 @@ const PlantDetail = () => {
   }, [plantId, passedPlant, getPlantById]);
 
   useEffect(() => {
-    listPlantDiary(plantId);
-  }, []);
+    if (plantId) listPlantDiary(plantId);
+  }, [plantId, listPlantDiary]);
 
   if (!plant) {
     return (
@@ -100,15 +101,28 @@ const PlantDetail = () => {
         <h2 className="text-xl font-semibold mb-4 text-sky-600 flex items-center gap-2">
           📖 성장일지
         </h2>
-        <ul className="space-y-3">
-          <li key={plant.id} className="border border-gray-200 rounded-xl p-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-gray-800">제목</h3>
-              <span className="text-sm text-gray-500">일지 날짜</span>
-            </div>
-            <p className="text-gray-600 mt-1 text-sm line-clamp-2">내용</p>
-          </li>
-        </ul>
+
+        {diaries.length === 0 ? (
+          <p className="text-gray-500">아직 등록된 성장일지가 없습니다.</p>
+        ) : (
+          <ul className="space-y-3">
+            {diaries.map((d) => (
+              <li key={d.id} className="border border-gray-200 rounded-xl p-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-semibold text-gray-800">
+                    {d.physical || "기록"}
+                  </h3>
+                  <span className="text-sm text-gray-500">
+                    {d.diaryDate || "-"}
+                  </span>
+                </div>
+                <p className="text-gray-600 mt-1 text-sm line-clamp-2">
+                  {d.careNotes || "내용 없음"}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );
