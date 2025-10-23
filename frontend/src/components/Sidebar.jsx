@@ -1,44 +1,73 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+import { getAllPlants } from "../services/plant";
 export default function Sidebar() {
+  const [plants, setPlants] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPlants = async () => {
+      try {
+        // 전체 데이터 불러오기
+        const allPlants = await getAllPlants();
+
+        // 무작위 3개만 선택
+        const shuffled = allPlants.sort(() => 0.5 - Math.random());
+        const randomThree = shuffled.slice(0, 3);
+
+        setPlants(randomThree);
+      } catch (err) {
+        console.error("❌ 식물 백과사전 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlants();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-5 text-gray-500">
+        불러오는 중...
+      </div>
+    );
+
   return (
     <div className="space-y-6">
-      {/* 오늘의 알림 */}
+      {/* 🌿 식물 백과사전 */}
       <div className="bg-white rounded-xl shadow-sm p-5">
-        <h3 className="font-semibold text-lg mb-3">🔔 오늘의 알림</h3>
-        <ul className="text-gray-600 text-sm space-y-1">
-          <li>몬스테라 급수 예정 · D-0</li>
-          <li>산세베리아 분갈이 · D-3</li>
-          <li>스킨답서스 비료 · D-7</li>
-        </ul>
-      </div>
+        <h3 className="font-semibold text-lg mb-3">📌 식물 정보</h3>
+        <ul className="space-y-3">
+          {plants.map((p) => (
+            <li
+              key={p.id}
+              className="flex items-center space-x-3 border-b border-gray-100 pb-3 last:border-0"
+            >
+              <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-green-50">
+                {p.imageUrl ? (
+                  <img
+                    src={p.imageUrl}
+                    alt={p.koreanName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-green-100"></div>
+                )}
+              </div>
 
-      {/* 나의 통계 */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
-        <h3 className="font-semibold text-lg mb-3">📈 나의 통계</h3>
-        <div className="grid grid-cols-3 text-center">
-          <div>
-            <p className="text-lg font-semibold text-green-600">12</p>
-            <p className="text-sm text-gray-500">식물</p>
-          </div>
-          <div>
-            <p className="text-lg font-semibold text-green-600">48</p>
-            <p className="text-sm text-gray-500">일지</p>
-          </div>
-          <div>
-            <p className="text-lg font-semibold text-green-600">7</p>
-            <p className="text-sm text-gray-500">알림</p>
-          </div>
-        </div>
-      </div>
-
-      {/* 커뮤니티 */}
-      <div className="bg-white rounded-xl shadow-sm p-5">
-        <h3 className="font-semibold text-lg mb-3">🌿 커뮤니티</h3>
-        <ul className="text-gray-600 text-sm space-y-1">
-          <li>#분갈이 팁 모음</li>
-          <li>#겨울철 관리법</li>
-          <li>#식물 Q&A</li>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-800 truncate">
+                  {p.koreanName || "이름 없음"}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {p.scientificName || "학명 없음"}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {p.origin ? `원산지: ${p.origin}` : ""}
+                </p>
+              </div>
+            </li>
+          ))}
         </ul>
       </div>
     </div>

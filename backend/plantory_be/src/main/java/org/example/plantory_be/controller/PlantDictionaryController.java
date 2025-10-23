@@ -2,6 +2,7 @@ package org.example.plantory_be.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.example.plantory_be.dto.response.PlantDictionaryResponse;
 import org.example.plantory_be.entity.PlantDictionary;
 import org.example.plantory_be.repository.PlantDictionaryRepository;
 import org.example.plantory_be.service.PlantDictionaryService;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,7 +26,7 @@ public class PlantDictionaryController {
         return plantDictionaryService.getAllPlants();
     }
 
-    // ✅ Controller
+
     @GetMapping("/perenual/{perenualId}")
     public ResponseEntity<PlantDictionary> getPlantByPerenualId(@PathVariable Long perenualId) {
         PlantDictionary plant = plantDictionaryService.getPlantByPerenualId(perenualId);
@@ -34,9 +36,6 @@ public class PlantDictionaryController {
             return ResponseEntity.notFound().build();
         }
     }
-
-
-
 
     @GetMapping("/plants/save")
     public String savePlantsFromApi() {
@@ -50,4 +49,10 @@ public class PlantDictionaryController {
         plantDictionaryService.fetchAndSavePlants();
         return "식물 데이터 저장 완료!";
     }
+
+    @GetMapping("/search")
+    public List<PlantDictionaryResponse> searchPlants(@RequestParam(required = false) String query) {
+        return plantDictionaryService.searchPlants(query);
+    }
+
 }
