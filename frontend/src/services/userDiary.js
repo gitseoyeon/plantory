@@ -19,7 +19,7 @@ const userPlantDiaryService = {
     return res.data;
   },
 
-  deletePlant: async (diaryId) => {
+  deleteDiary: async (plantId, diaryId) => {
     await api.delete(`/api/diary/${plantId}/${diaryId}`);
   },
 };

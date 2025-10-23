@@ -43,6 +43,7 @@ const useUserPlantDiaryStore = create((set, get) => ({
           totalElements: data.totalElements ?? 0,
         },
       });
+
       return data;
     } catch (err) {
       set({
@@ -54,6 +55,18 @@ const useUserPlantDiaryStore = create((set, get) => ({
       throw err;
     } finally {
       set({ loading: false });
+    }
+  },
+
+  deleteDiary: async (plantId, diaryId) => {
+    try {
+      await userPlantDiaryService.deleteDiary(plantId, diaryId);
+      set((state) => ({
+        diaries: state.diaries.filter((d) => d.id !== diaryId),
+      }));
+    } catch (err) {
+      console.error("[deleteDiary] 실패:", err);
+      throw err;
     }
   },
 }));

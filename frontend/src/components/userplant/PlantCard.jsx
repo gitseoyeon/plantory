@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import noImage from "../../assets/no_image.png";
 import useAuthStore from "../../store/authStore";
 import useUserPlantStore from "../../store/userPlantStore";
+import { PiPencilSimpleLineBold, PiTrashBold } from "react-icons/pi";
 
 const PlantCard = ({ plant, onEdit, onDelete }) => {
   if (!plant) return null;
@@ -148,16 +149,16 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
             <button
               type="button"
               onClick={() => onEdit?.(plant)}
-              className="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              className="px-1 py-1 rounded-lg border border-gray-100 text-gray-700 bg-white hover:bg-gray-50"
             >
-              수정
+              <PiPencilSimpleLineBold size={20} />
             </button>
             <button
               type="button"
               onClick={handleDelete}
-              className="px-3 py-1 rounded-lg border border-red-200 text-red-600 bg-white hover:bg-red-50"
+              className="px-1 py-1 rounded-lg border border-red-100 text-red-600 bg-white hover:bg-red-50"
             >
-              삭제
+              <PiTrashBold size={20} />
             </button>
           </div>
         )}

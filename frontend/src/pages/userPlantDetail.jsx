@@ -3,14 +3,17 @@ import { useLocation, useParams } from "react-router-dom";
 import useUserPlantStore from "../store/userPlantStore";
 import noImage from "../assets/no_image.png";
 import useUserPlantDiaryStore from "../store/userDiaryStore";
+import PlantDiaryList from "../components/userplant/PlantDiaryList";
 
 const PlantDetail = () => {
   const { plantId } = useParams();
   const location = useLocation();
   const passedPlant = location.state?.plant;
-  const { getPlantById } = useUserPlantStore();
+  const getPlantById = useUserPlantStore((s) => s.getPlantById);
+  const diaries = useUserPlantDiaryStore((s) => s.diaries);
+  const listPlantDiary = useUserPlantDiaryStore((s) => s.listPlantDiary);
+
   const [plant, setPlant] = useState(passedPlant);
-  const { listPlantDiary, diaries } = useUserPlantDiaryStore();
 
   useEffect(() => {
     if (!passedPlant && plantId) {
@@ -27,9 +30,23 @@ const PlantDetail = () => {
     }
   }, [plantId, passedPlant, getPlantById]);
 
+  const loadDiaries = async () => {
+    try {
+      await listPlantDiary(plantId);
+    } catch (err) {
+      console.error("다이어리 불러오기 실패:", err);
+    }
+  };
+
+  // ✅ 최초 렌더링 시 목록 로드
   useEffect(() => {
-    if (plantId) listPlantDiary(plantId);
-  }, [plantId, listPlantDiary]);
+    if (plantId) loadDiaries();
+  }, [plantId]);
+
+  // ✅ 삭제 후 목록 새로고침
+  const handleDelete = async () => {
+    await loadDiaries(); // 삭제 후 다시 불러오기
+  };
 
   if (!plant) {
     return (
@@ -97,33 +114,15 @@ const PlantDetail = () => {
         </p>
       </div>
 
-      <section>
-        <h2 className="text-xl font-semibold mb-4 text-sky-600 flex items-center gap-2">
-          📖 성장일지
-        </h2>
-
-        {diaries.length === 0 ? (
-          <p className="text-gray-500">아직 등록된 성장일지가 없습니다.</p>
-        ) : (
-          <ul className="space-y-3">
-            {diaries.map((d) => (
-              <li key={d.id} className="border border-gray-200 rounded-xl p-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-800">
-                    {d.physical || "기록"}
-                  </h3>
-                  <span className="text-sm text-gray-500">
-                    {d.diaryDate || "-"}
-                  </span>
-                </div>
-                <p className="text-gray-600 mt-1 text-sm line-clamp-2">
-                  {d.careNotes || "내용 없음"}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <PlantDiaryList
+        page={diaries}
+        plantOwnerId={plant.userId}
+        plantId={plantId}
+        onEdit={(d) => {
+          alert("준비중입니다.");
+        }}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };

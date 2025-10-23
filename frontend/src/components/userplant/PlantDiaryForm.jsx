@@ -20,6 +20,14 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
   const [loading, setLoading] = useState(false);
 
   const uploadPlantPhoto = async (plantId, file) => {
+    if (!plantId) {
+      // ✅ 호출부에서 catch 되도록 throw
+      throw new Error("plantId가 없어 업로드할 수 없습니다.");
+    }
+    if (!file) {
+      throw new Error("업로드할 파일이 없습니다.");
+    }
+
     try {
       const token = localStorage.getItem("accessToken");
       if (!token || token === "undefined" || token === "null") {
@@ -33,7 +41,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
         import.meta.env.VITE_API_URL
       }/api/diary/photos/${plantId}`;
       console.log(
-        "[uploadPlantPhoto] 요청 URL:",
+        "[upload] 요청 URL:",
         uploadUrl,
         "plantId:",
         plantId,
@@ -51,22 +59,22 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
 
       if (!res.ok) {
         const text = await res.text();
-        console.error("[uploadPlantPhoto] 서버 응답 오류:", res.status, text);
+        console.error("[upload] 서버 응답 오류:", res.status, text);
         throw new Error(`업로드 실패 (${res.status})`);
       }
 
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const data = await res.json();
-        console.log("[uploadPlantPhoto] 서버 응답:", data);
+        console.log("[upload] 서버 응답:", data);
         return data; // { imageUrl: "..." } 예상
       } else {
         const text = await res.text();
-        console.error("[uploadPlantPhoto] JSON 아님:", text);
+        console.error("[upload] JSON 아님:", text);
         throw new Error("서버가 JSON 대신 HTML을 반환했습니다.");
       }
     } catch (err) {
-      console.error("[uploadPlantPhoto] 에러:", err);
+      console.error("[upload] 에러:", err);
       throw err;
     }
   };
@@ -74,8 +82,14 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
   // 파일 선택
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files?.[0];
-    console.log("selectedFile:", selectedFile);
+
     if (!selectedFile) return;
+
+    if (!plantId) {
+      alert("반려 식물을 먼저 선택해주세요.");
+      e.target.value = ""; // 같은 파일 재선택 가능하게 초기화
+      return;
+    }
 
     setFile(selectedFile);
     setPreviewUrl(URL.createObjectURL(selectedFile));
@@ -90,6 +104,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
       }));
     } catch (err) {
       alert("이미지 업로드 실패: " + (err.message || err));
+      return;
     }
   };
 
@@ -124,7 +139,6 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
 
   return (
     <form onSubmit={onSubmit} className="space-y-8">
-      {/* 기본 정보 */}
       <section className="bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -173,41 +187,60 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
         </div>
       </section>
 
-      {/* 사진 + 메모 */}
       <section className="bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">성장 사진</h2>
+          <h2 className="text-lg font-semibold text-gray-800">성장 기록</h2>
         </div>
 
         <div className="p-5 space-y-4">
-          <label className="inline-flex flex-col items-start gap-2 cursor-pointer">
-            <span className="text-sm text-gray-600">사진 선택</span>
+          {/* 날짜 */}
+          <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-4 items-center">
+            <span className="text-sm text-gray-600">기록 날짜</span>
             <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileChange}
+              id="diaryDate"
+              name="diaryDate"
+              value={form.diaryDate}
+              onChange={onChange}
+              type="date"
+              className="rounded-xl border border-gray-300 p-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
+              aria-label="기록일자"
             />
-            <div className="w-full rounded-xl border border-dashed border-gray-300 p-3 text-sm text-gray-600 hover:border-gray-400 bg-white">
-              {file ? file.name : "이미지 파일 선택"}
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <label
+                className="shrink-0 inline-flex items-center justify-center
+                             h-[46px] min-w-[180px] px-4
+                             rounded-xl border border-dashed border-gray-300
+                             text-sm text-gray-600 hover:border-gray-400 cursor-pointer
+                             bg-white"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                {file ? `선택됨: ${row.fileName}` : "성장 사진 선택"}
+              </label>
+
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="preview"
+                  className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                />
+              )}
+
+              <input
+                type="text"
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+                className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+                placeholder="사진 메모"
+              />
             </div>
-          </label>
-
-          {previewUrl && (
-            <img
-              src={previewUrl}
-              alt="preview"
-              className="w-32 h-32 object-cover rounded-lg border border-gray-200"
-            />
-          )}
-
-          <input
-            type="text"
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
-            placeholder="사진 메모"
-          />
+          </div>
         </div>
       </section>
 

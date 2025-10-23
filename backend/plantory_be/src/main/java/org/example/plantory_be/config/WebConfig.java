@@ -23,10 +23,10 @@ public class  WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 예: /files/** → file:/var/plantory/uploads/qr/
-        registry.addResourceHandler("/files/**")
+        registry.addResourceHandler("/files/qr/**")
                 .addResourceLocations("file:" + qrUploadDir + "/");
 
-        registry.addResourceHandler("/files/**")
+        registry.addResourceHandler("/files/plant/**")
                 .addResourceLocations("file:" + plantUploadDir + "/");
 
         registry.addResourceHandler("/uploads/**")
