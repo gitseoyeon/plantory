@@ -40,14 +40,6 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
       const uploadUrl = `${
         import.meta.env.VITE_API_URL
       }/api/diary/photos/${plantId}`;
-      console.log(
-        "[upload] 요청 URL:",
-        uploadUrl,
-        "plantId:",
-        plantId,
-        "file:",
-        file.name
-      );
 
       const res = await fetch(uploadUrl, {
         method: "POST",

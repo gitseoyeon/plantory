@@ -4,10 +4,6 @@ import useAuthStore from "../../store/authStore";
 import { PiPencilSimpleLineBold, PiTrashBold } from "react-icons/pi";
 import useUserPlantDiaryStore from "../../store/userDiaryStore";
 
-/**
- * @param {object|array} page - Spring Page 응답(위 JSON) 또는 다이어리 배열
- *   page.content: Array<Diary>
- */
 const PlantDiaryList = ({ page, plantOwnerId, plantId, onEdit, onDelete }) => {
   const { user, isAuthenticated } = useAuthStore();
   const deleteDiary = useUserPlantDiaryStore((s) => s.deleteDiary);
@@ -74,9 +70,7 @@ const PlantDiaryList = ({ page, plantOwnerId, plantId, onEdit, onDelete }) => {
             <img
               src={
                 p.imageUrl
-                  ? `${import.meta.env.VITE_API_URL}${
-                      p.imageUrl.startsWith("/") ? "" : "/"
-                    }${p.imageUrl}`
+                  ? `${import.meta.env.VITE_API_URL}${p.imageUrl}`
                   : noImage
               }
               alt={p.memo || "photo"}
@@ -156,7 +150,6 @@ const PlantDiaryList = ({ page, plantOwnerId, plantId, onEdit, onDelete }) => {
                 <p className="line-clamp-2">{memosText(d)}</p>
               </div>
               <div className="flex justify-end">
-                {d.id}
                 {canManage && (
                   <>
                     <button type="button" onClick={() => onEdit?.(d.id)}>

@@ -38,12 +38,10 @@ const PlantDetail = () => {
     }
   };
 
-  // ✅ 최초 렌더링 시 목록 로드
   useEffect(() => {
     if (plantId) loadDiaries();
   }, [plantId]);
 
-  // ✅ 삭제 후 목록 새로고침
   const handleDelete = async () => {
     await loadDiaries(); // 삭제 후 다시 불러오기
   };
@@ -55,7 +53,7 @@ const PlantDetail = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow rounded-2xl p-6 mt-10 space-y-6">
+    <div className="max-w-3xl mx-auto shadow-sm border border-gray-200 rounded-2xl p-6 mt-10 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">

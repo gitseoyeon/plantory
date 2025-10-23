@@ -42,7 +42,7 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
     }
   };
   return (
-    <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+    <div className="shadow-sm border border-gray-200 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
       <div className="flex items-center gap-1">
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
@@ -64,7 +64,7 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
             {acquiredDate ? `구입/분양일: ${acquiredDate}` : "등록일 정보 없음"}
           </p>
         </div>
-        {/* QR */}
+
         {qrImageUrl && (
           <div
             className="w-28 h-20 ml-auto bg-white rounded-lg overflow-hidden flex items-center
@@ -145,20 +145,18 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
         </div>
 
         {canManage && (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => onEdit?.(plant)}
-              className="px-1 py-1 rounded-lg border border-gray-100 text-gray-700 bg-white hover:bg-gray-50"
-            >
-              <PiPencilSimpleLineBold size={20} />
+          <div className="flex">
+            <button type="button" onClick={() => onEdit?.(plant)}>
+              <PiPencilSimpleLineBold
+                size={30}
+                className="px-1 py-1 text-gray-500 rounded-md bg-white hover:bg-gray-200"
+              />
             </button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="px-1 py-1 rounded-lg border border-red-100 text-red-600 bg-white hover:bg-red-50"
-            >
-              <PiTrashBold size={20} />
+            <button type="button" onClick={handleDelete}>
+              <PiTrashBold
+                size={30}
+                className="px-1 py-1 rounded-lg  text-red-600 bg-white hover:bg-red-100"
+              />
             </button>
           </div>
         )}
