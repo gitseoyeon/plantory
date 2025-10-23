@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import useUserPlantDiaryStore from "../../store/userDiaryStore";
+import { PiTrashBold } from "react-icons/pi";
 
-const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
+const PlantDiaryForm = ({ onClose, plantId }) => {
   const today = new Date().toISOString().split("T")[0];
   const createDiary = useUserPlantDiaryStore((s) => s.createDiary);
 
@@ -18,10 +19,10 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [memo, setMemo] = useState("");
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const uploadPlantPhoto = async (plantId, file) => {
     if (!plantId) {
-      // ✅ 호출부에서 catch 되도록 throw
       throw new Error("plantId가 없어 업로드할 수 없습니다.");
     }
     if (!file) {
@@ -51,18 +52,18 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
 
       if (!res.ok) {
         const text = await res.text();
-        console.error("[upload] 서버 응답 오류:", res.status, text);
+        //console.error("[upload] 서버 응답 오류:", res.status, text);
         throw new Error(`업로드 실패 (${res.status})`);
       }
 
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const data = await res.json();
-        console.log("[upload] 서버 응답:", data);
-        return data; // { imageUrl: "..." } 예상
+        //console.log("[upload] 서버 응답:", data);
+        return data;
       } else {
         const text = await res.text();
-        console.error("[upload] JSON 아님:", text);
+        //console.error("[upload] JSON 아님:", text);
         throw new Error("서버가 JSON 대신 HTML을 반환했습니다.");
       }
     } catch (err) {
@@ -89,7 +90,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
     try {
       const res = await uploadPlantPhoto(plantId, selectedFile);
       setUploadedUrl(res.imageUrl || res.imageUrlPath || res.fileName || "");
-      //console.log("업로드 완료 - imageUrl:", res);
+      console.log("업로드 완료 - imageUrl:", res);
       setForm((prev) => ({
         ...prev,
         userPlantPhotos: [{ imageUrl: res.imageUrl, memo }],
@@ -117,15 +118,23 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
         ? [{ imageUrl: uploadedUrl, memo }]
         : [];
       const payload = { ...form, plantId, userPlantPhotos: photosPayload };
-      //console.log("[payload]", payload);
+      console.log("[payload]", payload);
       const res = await createDiary(payload);
-      onSuccess?.(res);
       onClose?.();
     } catch (err) {
       console.error("[PlantDiaryForm] createDiary error:", err);
       alert("등록 실패");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelFile = () => {
+    setFile(null);
+    setPreviewUrl("");
+    setUploadedUrl("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // input 초기화
     }
   };
 
@@ -145,7 +154,8 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             value={form.physical}
             onChange={onChange}
             type="text"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm 
+            focus:outline-none focus:ring-2 focus:ring-sky-200 placeholder:font-semibold"
             placeholder="[필수] 생육 (예: 현재 크기, 성장 단계 등)"
             required
           />
@@ -155,7 +165,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             value={form.manage}
             onChange={onChange}
             type="text"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
             placeholder="관리 (예: 물 주기, 가지치기 등)"
           />
           <input
@@ -164,7 +174,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             value={form.preferred}
             onChange={onChange}
             type="text"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
             placeholder="환경 (예: 온도, 습도, 일조량)"
           />
           <input
@@ -173,7 +183,7 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
             value={form.careNotes}
             onChange={onChange}
             type="text"
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
             placeholder="특이 사항(예: 병충해 등)"
           />
         </div>
@@ -184,59 +194,74 @@ const PlantDiaryForm = ({ onClose, onSuccess, plantId }) => {
           <h2 className="text-lg font-semibold text-gray-800">성장 기록</h2>
         </div>
 
-        <div className="p-5 space-y-4">
-          {/* 날짜 */}
-          <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-4 items-center">
-            <span className="text-sm text-gray-600">기록 날짜</span>
-            <input
-              id="diaryDate"
-              name="diaryDate"
-              value={form.diaryDate}
-              onChange={onChange}
-              type="date"
-              className="rounded-xl border border-gray-300 p-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
-              aria-label="기록일자"
-            />
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <label
-                className="shrink-0 inline-flex items-center justify-center
-                             h-[46px] min-w-[180px] px-4
-                             rounded-xl border border-dashed border-gray-300
-                             text-sm text-gray-600 hover:border-gray-400 cursor-pointer
-                             bg-white"
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                {file ? `선택됨: ${row.fileName}` : "성장 사진 선택"}
-              </label>
-
-              {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="preview"
-                  className="w-32 h-32 object-cover rounded-lg border border-gray-200"
-                />
+        <div className="p-5">
+          <div className="grid grid-cols-[160px_1fr] gap-6 items-start">
+            <div className="relative w-40 h-40 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+              {previewUrl ? (
+                <>
+                  <img
+                    src={previewUrl}
+                    alt="preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <PiTrashBold
+                    size={26}
+                    className="absolute bottom-2 right-2 text-red-600 bg-white rounded-full p-1 hover:bg-red-100 cursor-pointer shadow-sm"
+                    onClick={handleCancelFile}
+                  />
+                </>
+              ) : (
+                <span className="text-gray-400 text-sm">미리보기 없음</span>
               )}
+            </div>
 
-              <input
-                type="text"
-                value={memo}
-                onChange={(e) => setMemo(e.target.value)}
-                className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
-                placeholder="사진 메모"
-              />
+            <div className="flex flex-col gap-4 w-full">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600 shrink-0 w-20">
+                  기록 날짜
+                </span>
+                <input
+                  id="diaryDate"
+                  name="diaryDate"
+                  value={form.diaryDate}
+                  onChange={onChange}
+                  type="date"
+                  className="flex-1 rounded-xl border border-gray-300 p-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-400"
+                />
+              </div>
+
+              <div className="flex items-center gap-4">
+                <label
+                  className="inline-flex items-center justify-center
+                       h-[46px] flex-1
+                       rounded-xl border border-dashed border-gray-300
+                       text-sm text-gray-600 hover:border-gray-400 cursor-pointer
+                       bg-white"
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  {file ? `선택됨: ${file.name}` : "성장 사진 선택"}
+                </label>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  value={memo}
+                  onChange={(e) => setMemo(e.target.value)}
+                  className="flex-1 rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+                  placeholder="사진 메모"
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 저장/취소 버튼 */}
       <div className="flex justify-center gap-3">
         <button
           type="submit"

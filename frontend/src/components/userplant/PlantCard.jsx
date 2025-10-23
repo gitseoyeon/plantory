@@ -61,7 +61,9 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
             )}
           </div>
           <p className="text-gray-500 text-sm mt-1">
-            {acquiredDate ? `구입/분양일: ${acquiredDate}` : "등록일 정보 없음"}
+            {acquiredDate
+              ? `구입일/분양일: ${acquiredDate}`
+              : "등록일 정보 없음"}
           </p>
         </div>
 
