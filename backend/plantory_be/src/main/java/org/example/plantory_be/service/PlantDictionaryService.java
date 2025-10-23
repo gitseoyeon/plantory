@@ -2,7 +2,9 @@ package org.example.plantory_be.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.example.plantory_be.dto.response.PlantDictionaryResponse;
 import org.example.plantory_be.entity.PlantDictionary;
 import org.example.plantory_be.repository.PlantDictionaryRepository;
 import org.json.JSONArray;
@@ -84,4 +86,15 @@ public class PlantDictionaryService {
         plantDictionaryRepository.saveAll(plants);
         System.out.println(plants.size() + "개 식물 저장 완료!");
     }
+
+    public List<PlantDictionaryResponse> searchPlants(String query) {
+        if (query == null || query.isBlank() || "null".equalsIgnoreCase(query.trim())) query = null;
+
+        List<PlantDictionary> plants = plantDictionaryRepository.searchPlants(query);
+
+        return plants.stream()
+            .map(PlantDictionaryResponse::fromEntity)
+            .collect(Collectors.toList());
+    }
+
 }
