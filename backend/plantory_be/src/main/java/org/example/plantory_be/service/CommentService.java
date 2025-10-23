@@ -6,10 +6,12 @@ import org.example.plantory_be.entity.Comment;
 import org.example.plantory_be.entity.Post;
 import org.example.plantory_be.entity.User;
 import org.example.plantory_be.exception.ResourceNotFoundException;
+import org.example.plantory_be.notification.NotificationEvent;
 import org.example.plantory_be.repository.CommentRepository;
 import org.example.plantory_be.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,6 +27,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final AuthenticationService authenticationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public CommentResponse createComment(Long postId, CommentRequest request) {
         User currentUser = authenticationService.getCurrentUser();
@@ -45,6 +48,20 @@ public class CommentService {
                 .build();
 
         comment = commentRepository.save(comment);
+
+        Long receiverId = post.getUser().getId();
+        if(!receiverId.equals(currentUser.getId())) {
+            eventPublisher.publishEvent(
+                    new NotificationEvent(
+                            receiverId,
+                            "COMMENT",
+                            currentUser.getNickName() + "님이 댓글을 남겼습니다.",
+                            post.getId(),
+                            currentUser.getId(),
+                            currentUser.getNickName()
+                    )
+            );
+        }
         return CommentResponse.fromEntity(comment);
     }
 
