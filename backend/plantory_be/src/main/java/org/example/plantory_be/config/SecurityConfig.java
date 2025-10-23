@@ -43,7 +43,7 @@ public class SecurityConfig {
                                 "/api/plants/**"
                         ).permitAll()
                         .requestMatchers("/files/**", "/uploads/**", "/api/uploads/**" ).permitAll()
-                        .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**", "/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
