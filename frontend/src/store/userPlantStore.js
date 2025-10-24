@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import userplantService from "../services/userplant";
+import userPlantService from "../services/userPlant";
 
 const useUserPlantStore = create((set, get) => ({
   plants: [],
@@ -12,7 +12,7 @@ const useUserPlantStore = create((set, get) => ({
   listAllPlants: async (page = 0, size = 10) => {
     set({ loading: true, error: null });
     try {
-      const res = await userplantService.getAllPlants(page, size);
+      const res = await userPlantService.getAllPlants(page, size);
       const content = Array.isArray(res?.content)
         ? res.content
         : Array.isArray(res)
@@ -49,7 +49,7 @@ const useUserPlantStore = create((set, get) => ({
   listMyPlants: async (page = 0, size = 10) => {
     set({ loading: true, error: null });
     try {
-      const res = await userplantService.getMyPlants(page, size);
+      const res = await userPlantService.getMyPlants(page, size);
       const content = Array.isArray(res?.content)
         ? res.content
         : Array.isArray(res)
@@ -79,11 +79,10 @@ const useUserPlantStore = create((set, get) => ({
     }
   },
 
-  // 생성
   createPlant: async (payload) => {
     set({ loading: true, error: null });
     try {
-      const created = await userplantService.createPlant(payload);
+      const created = await userPlantService.createPlant(payload);
       set((state) => ({
         plants: [created, ...state.plants],
         loading: false,
@@ -101,11 +100,10 @@ const useUserPlantStore = create((set, get) => ({
     }
   },
 
-  // 수정
   updatePlant: async (id, payload) => {
     set({ loading: true, error: null });
     try {
-      const updated = await userplantService.updatePlant(id, payload);
+      const updated = await userPlantService.updatePlant(id, payload);
       set((state) => ({
         plants: state.plants.map((p) => (p.id === id ? updated : p)),
         loading: false,
@@ -123,11 +121,10 @@ const useUserPlantStore = create((set, get) => ({
     }
   },
 
-  // 삭제
   deletePlant: async (id) => {
     set({ loading: true, error: null });
     try {
-      await userplantService.deletePlant(id);
+      await userPlantService.deletePlant(id);
       set((state) => ({
         plants: state.plants.filter((p) => p.id !== id),
         loading: false,
@@ -148,7 +145,7 @@ const useUserPlantStore = create((set, get) => ({
   listSpecies: async () => {
     set({ loading: true, error: null });
     try {
-      const data = await userplantService.getListSpecies();
+      const data = await userPlantService.getListSpecies();
       const list = Array.isArray(data) ? data : [];
       set({ species: list, loading: false });
       return list;
@@ -165,10 +162,11 @@ const useUserPlantStore = create((set, get) => ({
     }
   },
 
+  //화분크기
   listPotSize: async () => {
     set({ loading: true, error: null });
     try {
-      const data = await userplantService.getListPotSize();
+      const data = await userPlantService.getListPotSize();
       const list = Array.isArray(data) ? data : [];
       set({ potSizes: list, loading: false });
       return list;

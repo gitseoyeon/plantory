@@ -72,7 +72,7 @@ public QRResult generateQrForPlant(Long plantId) {
         MatrixToImageWriter.writeToPath(matrix, "PNG", outPath);
 
         // 공개 접근 URL 구성
-        String publicUrl = String.format("%s/files/%d/%s", baseUrl, currentUser.getId(), fileName);
+        String publicUrl = String.format("%s/files/qr/%d/%s", baseUrl, currentUser.getId(), fileName);
 
         return new QRResult(content, publicUrl, outPath);
 

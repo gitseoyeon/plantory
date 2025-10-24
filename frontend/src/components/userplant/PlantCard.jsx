@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import noImage from "../../assets/no_image.png";
 import useAuthStore from "../../store/authStore";
 import useUserPlantStore from "../../store/userPlantStore";
+import { PiPencilSimpleLineBold, PiTrashBold } from "react-icons/pi";
 
 const PlantCard = ({ plant, onEdit, onDelete }) => {
   if (!plant) return null;
@@ -16,9 +17,13 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
     petName,
     acquiredDate,
     imageUrl,
+    indoor,
+    store,
+    price,
     speciesName,
     location,
     potSize,
+    potSizeLabel,
     qrImageUrl,
     userId,
   } = plant;
@@ -37,7 +42,7 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
     }
   };
   return (
-    <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-all">
+    <div className="shadow-sm border border-gray-200 rounded-xl p-5 flex flex-col gap-3 hover:shadow-md transition-all">
       <div className="flex items-center gap-1">
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
@@ -56,10 +61,12 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
             )}
           </div>
           <p className="text-gray-500 text-sm mt-1">
-            {acquiredDate ? `구입/분양일: ${acquiredDate}` : "등록일 정보 없음"}
+            {acquiredDate
+              ? `구입일/분양일: ${acquiredDate}`
+              : "등록일 정보 없음"}
           </p>
         </div>
-        {/* QR */}
+
         {qrImageUrl && (
           <div
             className="w-28 h-20 ml-auto bg-white rounded-lg overflow-hidden flex items-center
@@ -101,7 +108,6 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
         </div>
       </div>
 
-      {/* 메타 */}
       <div className="text-gray-700 text-sm leading-relaxed">
         {speciesName || location || potSize ? (
           <div className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -120,7 +126,7 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
             {potSize && (
               <span className="inline-flex items-center">
                 <span className="text-gray-500 mr-1">화분</span>
-                <span className="font-medium">{potSize}</span>
+                <span className="font-medium">{potSizeLabel}</span>
               </span>
             )}
           </div>
@@ -141,20 +147,18 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
         </div>
 
         {canManage && (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => onEdit?.(plant)}
-              className="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-            >
-              수정
+          <div className="flex">
+            <button type="button" onClick={() => onEdit?.(plant)}>
+              <PiPencilSimpleLineBold
+                size={30}
+                className="px-1 py-1 text-gray-500 rounded-md bg-white hover:bg-gray-200"
+              />
             </button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="px-3 py-1 rounded-lg border border-red-200 text-red-600 bg-white hover:bg-red-50"
-            >
-              삭제
+            <button type="button" onClick={handleDelete}>
+              <PiTrashBold
+                size={30}
+                className="px-1 py-1 rounded-lg  text-red-600 bg-white hover:bg-red-100"
+              />
             </button>
           </div>
         )}

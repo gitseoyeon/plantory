@@ -13,13 +13,12 @@ import Register from "./pages/register";
 import Home from "./pages/home";
 import OAuthCallback from "./pages/oauthCallback";
 import useAuthStore from "./store/authStore";
-
-// 식물 관리
 import MyPage from "./pages/myPage";
 import UserProfile from "./pages/userProfile";
+
+// 식물 관리
 import PlantDetail from "./pages/userPlantDetail";
 import PlantList from "./components/userplant/PlantList";
-import PlantRegister from "./pages/plantRegister";
 
 //식물 백과사전
 import PlantDictionaryList from "./pages/PlantDictionaryList";
@@ -53,13 +52,13 @@ function AppLayout() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
-          
+
           {/* 식물 관리 */}
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/users/:userId" element={<UserProfile />} />
           <Route path="/plants" element={<PlantList />} />
           <Route path="/plant/:plantId" element={<PlantDetail />} />
-          
+
           {/* 식물 백과사전 */}
           <Route path="/dictionary" element={<PlantDictionaryList />} />
           <Route path="/dictionary/:id" element={<PlantDictionaryDetail />} />
