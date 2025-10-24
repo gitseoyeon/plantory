@@ -32,6 +32,17 @@ public class UserPlantDiaryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping
+    public ResponseEntity<Page<UserPlantDiaryResponse>> listPlantDiary(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserPlantDiaryResponse> userPlants = diaryService.listPlantsDiary(pageable);
+        return ResponseEntity.ok(userPlants);
+    }
+
     @GetMapping("/{plantId}")
     public ResponseEntity<Page<UserPlantDiaryResponse>> listUserPlantDiary(
             @PathVariable Long plantId,

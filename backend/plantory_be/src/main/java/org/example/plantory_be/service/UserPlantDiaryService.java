@@ -67,6 +67,15 @@ public class UserPlantDiaryService {
     }
 
     @Transactional(readOnly = true)
+    public Page<UserPlantDiaryResponse> listPlantsDiary(Pageable pageable) {
+
+        authenticationService.getCurrentUser();
+
+        Page<UserPlantDiary> page = diaryRepository.findByOrderByCreatedAtDesc(pageable);
+        return page.map(UserPlantDiaryResponse::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
     public Page<UserPlantDiaryResponse> listUserPlantsDiary(Long plantId, Pageable pageable) {
 
         authenticationService.getCurrentUser();

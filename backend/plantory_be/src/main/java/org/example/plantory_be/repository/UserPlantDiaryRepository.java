@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserPlantDiaryRepository extends JpaRepository<UserPlantDiary, Long> {
 
+    Page<UserPlantDiary> findByOrderByCreatedAtDesc(Pageable pageable);
+
     Page<UserPlantDiary> findByUserPlantIdOrderByCreatedAtDesc(Long plantId, Pageable pageable);
 }
