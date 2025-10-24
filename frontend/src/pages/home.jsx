@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import PlantRegister from "./plantRegister";
 import PlantList from "../components/userplant/PlantList";
-import userplantService from "../services/userplant";
+import userPlantService from "../services/userPlant";
 import AllPlantList from "../components/feed/AllPlantList";
 import Sidebar from "../components/Sidebar";
 import logoAnimal from "../assets/logo_animal.png";
