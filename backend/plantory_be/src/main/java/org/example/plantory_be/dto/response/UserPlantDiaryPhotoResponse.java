@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.plantory_be.entity.UserPlantPhoto;
 
-import java.time.LocalDateTime;
 
 @Data
 @Builder
