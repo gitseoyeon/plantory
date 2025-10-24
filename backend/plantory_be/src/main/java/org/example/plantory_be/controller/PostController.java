@@ -1,10 +1,13 @@
 package org.example.plantory_be.controller;
 
+import com.google.zxing.NotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.PostRequest;
 import org.example.plantory_be.dto.response.PostResponse;
 import org.example.plantory_be.entity.LikeTargetType;
+import org.example.plantory_be.entity.Post;
+import org.example.plantory_be.entity.User;
 import org.example.plantory_be.service.LikeService;
 import org.example.plantory_be.service.PostService;
 import org.springframework.data.domain.Page;
