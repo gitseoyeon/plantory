@@ -175,7 +175,9 @@ export default function Home() {
                     ))
                   ) : (
                     <div className="p-4 text-gray-500 text-center">
-                      게시글이 없습니다.
+                      {isAuthenticated
+                        ? "게시글이 없습니다."
+                        : "로그인 후 이용 가능합니다."}
                     </div>
                   )}
                 </div>

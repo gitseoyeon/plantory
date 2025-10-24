@@ -184,7 +184,9 @@ export default function Sidebar() {
           )}
         </div>
 
-        {notifications.length === 0 ? (
+        {!userId ? (
+          <p className="text-gray-500 text-sm">로그인 후 이용 가능합니다.</p>
+        ) : notifications.length === 0 ? (
           <p className="text-gray-500 text-sm">새로운 알림이 없습니다.</p>
         ) : (
           <ul className="divide-y divide-gray-100">
