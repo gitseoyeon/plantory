@@ -27,14 +27,14 @@ const CommentForm = ({ postId, parentId, onAddComment }) => {
         placeholder="댓글을 남겨보세요 ✍️"
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="w-full border border-gray-300 rounded-xl p-3 resize-none focus:outline-none focus:ring-2 focus:ring-green-400"
+        className="w-full border border-gray-300 rounded-xl p-3 resize-none focus:outline-none focus:ring-2 focus:ring-green-200"
         rows="2"
       ></textarea>
       <div className="flex justify-end">
         <button
           type="submit"
           disabled={loading}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg transition-all font-medium text-sm disabled:opacity-50"
+          className="bg-green-400 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg transition-all font-medium text-sm disabled:opacity-50"
         >
           {loading ? "등록 중..." : "등록"}
         </button>

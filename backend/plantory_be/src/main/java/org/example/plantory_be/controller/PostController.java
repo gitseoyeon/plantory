@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +30,8 @@ public class PostController {
 
     private static final int EXPIRATION_MINUTES = 60;
 
-    @PostMapping
-    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponse> createPost(@Valid @ModelAttribute PostRequest request) {
         PostResponse response = postService.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -74,10 +75,10 @@ public class PostController {
         return ResponseEntity.ok(Map.of("count", count));
     }
 
-    @PutMapping("/{postId}")
+    @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostResponse> updatePost(
             @PathVariable Long postId,
-            @Valid @RequestBody PostRequest request
+            @Valid @ModelAttribute PostRequest request
     ) {
         PostResponse response = postService.updatePost(postId, request);
         return ResponseEntity.ok(response);

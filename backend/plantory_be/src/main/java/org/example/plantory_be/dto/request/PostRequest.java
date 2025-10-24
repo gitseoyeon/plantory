@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.plantory_be.entity.PostCategory;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
@@ -24,4 +25,6 @@ public class PostRequest {
     private PostCategory category;
 
     private String imageUrl;
+
+    private MultipartFile file;
 }

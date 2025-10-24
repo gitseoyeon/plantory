@@ -44,4 +44,24 @@ public class FileUploadService {
             throw new RuntimeException("파일 업로드 중 오류 발생");
         }
     }
+
+    /** ✅ 로컬 파일 삭제 */
+    public void deleteFile(String imageUrl) {
+        try {
+            if (imageUrl == null || imageUrl.isBlank()) return;
+
+            // DB에는 "/uploads/profile/xxx.jpeg" 형태로 저장되어 있으므로 경로 정리
+            String relativePath = imageUrl.replaceFirst("^/uploads", "");
+            Path filePath = Paths.get(uploadPath, relativePath).normalize();
+
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                log.info("파일 삭제 완료: {}", filePath);
+            } else {
+                log.warn("삭제할 파일이 존재하지 않음: {}", filePath);
+            }
+        } catch (IOException e) {
+            log.error("파일 삭제 중 오류 발생: {}", e.getMessage(), e);
+        }
+    }
 }

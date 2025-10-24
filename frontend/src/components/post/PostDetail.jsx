@@ -5,7 +5,6 @@ import PostLikeButton from "./PostLikeButton";
 import CommentList from "../comment/CommentList";
 import { postService } from "../../services/post";
 import CommunityAuthorProfile from "../ui/CommunityAuthorProfile";
-import { MessageCircle } from "lucide-react"; // 💬 댓글 아이콘 (선택)
 
 export default function PostDetail() {
   const { postId } = useParams();
@@ -13,7 +12,6 @@ export default function PostDetail() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // ✅ 게시글 불러오기
   const fetchPost = async () => {
     try {
       const postData = await postService.getPostById(postId);
@@ -29,7 +27,6 @@ export default function PostDetail() {
     if (postId) fetchPost();
   }, [postId]);
 
-  // ✅ 게시글 삭제
   const handleDelete = async () => {
     if (!window.confirm("정말 이 게시글을 삭제하시겠습니까?")) return;
     try {
@@ -63,7 +60,7 @@ export default function PostDetail() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* ✅ 게시글 헤더 */}
+      {/* ✅ 헤더 */}
       <div className="p-6 border-b border-gray-200 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">{post.title}</h1>
@@ -85,22 +82,32 @@ export default function PostDetail() {
           </div>
         </div>
 
-        {/* ✅ 작성자 프로필 */}
+        {/* 작성자 */}
         <CommunityAuthorProfile post={post} />
       </div>
 
-      {/* ✅ 게시글 본문 */}
+      {/* ✅ 이미지 먼저 표시 */}
+      {post.imageUrl && (
+        <div className="mt-6 flex justify-center">
+          <img
+            src={post.imageUrl}
+            alt="게시글 이미지"
+            className="rounded-lg max-h-[500px] object-contain"
+          />
+        </div>
+      )}
+
+      {/* ✅ 본문 내용 */}
       <div className="p-6 text-gray-700 leading-relaxed whitespace-pre-wrap">
         {post.content}
       </div>
 
-      {/* ✅ 좋아요 & 댓글 카운트 */}
+      {/* 좋아요/댓글 */}
       <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-5 text-gray-500">
-        {/* ❤️ 좋아요 버튼 */}
         <PostLikeButton post={post} />
       </div>
 
-      {/* ✅ 댓글 영역 */}
+      {/* 댓글 */}
       <div className="p-6 border-t border-gray-100">
         <CommentList postId={post.id} />
       </div>

@@ -12,17 +12,31 @@ export const postService = {
     const res = await api.get(`/api/posts/${postId}`);
     return res.data;
   },
+  createPost: async (formData) => {
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("content", formData.content);
+    data.append("category", formData.category);
+    if (formData.file) data.append("file", formData.file);
 
-  // 포스트 생성
-  async createPost(data) {
-    const res = await api.post("/api/posts", data);
-    return res.data;
+    const response = await api.post("/api/posts", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
   },
 
-  // 포스트 수정
-  async updatePost(postId, data) {
-    const res = await api.put(`/api/posts/${postId}`, data);
-    return res.data;
+  updatePost: async (postId, formData) => {
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("content", formData.content);
+    data.append("category", formData.category);
+    if (formData.file) data.append("file", formData.file);
+    if (formData.imageUrl) data.append("imageUrl", formData.imageUrl);
+
+    const response = await api.put(`/api/posts/${postId}`, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
   },
 
   // 포스트 삭제

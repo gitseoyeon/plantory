@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { postService } from "../services/post";
-import { ko } from "date-fns/locale";
 
 const postStore = create((set) => ({
   posts: [],
@@ -20,6 +19,7 @@ const postStore = create((set) => ({
     }
   },
 
+  // ✅ 단일 포스트 가져오기
   fetchPostById: async (postId) => {
     set({ loading: true });
     try {
@@ -30,39 +30,61 @@ const postStore = create((set) => ({
     }
   },
 
-// ✅ 좋아요 토글 
-toggleLike: async (postId) => {
-  try {
-    const res = await postService.toggleLike(postId);
-    const { liked, likeCount } = res.data ?? res; 
-
-    if (typeof likeCount !== "number") {
-      console.warn("likeCount 값이 비정상:", res);
-      return null;
+  // ✅ 포스트 생성
+  createPost: async (data) => {
+    set({ loading: true });
+    try {
+      const created = await postService.createPost(data);
+      set((state) => ({
+        posts: [created, ...state.posts],
+        loading: false,
+      }));
+      return created;
+    } catch (err) {
+      console.error("포스트 생성 실패:", err);
+      set({ loading: false, error: err.message });
     }
+  },
 
-    set((state) => {
-      const updatedPosts = state.posts.map((p) =>
-        p.id === postId ? { ...p, liked, likeCount } : p
-      );
+  // ✅ 포스트 수정
+  updatePost: async (postId, data) => {
+    set({ loading: true });
+    try {
+      const updated = await postService.updatePost(postId, data);
+      set((state) => ({
+        posts: state.posts.map((p) => (p.id === postId ? updated : p)),
+        post: state.post?.id === postId ? updated : state.post,
+        loading: false,
+      }));
+      return updated;
+    } catch (err) {
+      console.error("포스트 수정 실패:", err);
+      set({ loading: false, error: err.message });
+    }
+  },
 
-      // ✅ 상세 페이지(post) 상태
-      const updatedPost =
-        state.post && state.post.id === postId
-          ? { ...state.post, liked, likeCount }
-          : state.post;
+  // ✅ 좋아요 토글
+  toggleLike: async (postId) => {
+    try {
+      const res = await postService.toggleLike(postId);
+      const { isLiked, likeCount } = res; // 백엔드 응답 필드명 맞춤
 
-      return { posts: updatedPosts, post: updatedPost };
-    });
+      set((state) => {
+        const updatedPosts = state.posts.map((p) =>
+          p.id === postId ? { ...p, isLiked, likeCount } : p
+        );
 
-    return { liked, likeCount };
-  } catch (err) {
-    console.error("좋아요 토글 실패:", err);
-    return null;
-  }
-},
+        const updatedPost =
+          state.post && state.post.id === postId
+            ? { ...state.post, isLiked, likeCount }
+            : state.post;
 
-
+        return { posts: updatedPosts, post: updatedPost };
+      });
+    } catch (err) {
+      console.error("좋아요 토글 실패:", err);
+    }
+  },
 }));
 
 export default postStore;

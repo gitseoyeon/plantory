@@ -1,27 +1,17 @@
 import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { userService } from "../../services/user";
 
 export default function CommunityAuthorProfile({ post }) {
   const [author, setAuthor] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ post.user를 직접 사용하도록 수정
   useEffect(() => {
-    const fetchAuthor = async () => {
-      try {
-        if (post?.user?.id) {
-          const userData = await userService.getUserProfile(post.user.id);
-          setAuthor(userData);
-        }
-      } catch (err) {
-        console.error("작성자 정보 불러오기 실패:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAuthor();
-  }, [post?.user?.id]);
+    if (post?.user) {
+      setAuthor(post.user);
+      setLoading(false);
+    }
+  }, [post]);
 
   if (loading)
     return <p className="text-gray-400 text-sm">작성자 정보를 불러오는 중...</p>;
@@ -29,11 +19,9 @@ export default function CommunityAuthorProfile({ post }) {
   const profileImage =
     author?.profileImageUrl
       ? `http://localhost:8080${author.profileImageUrl}`
-      : post.user?.profileImageUrl
-      ? `http://localhost:8080${post.user.profileImageUrl}`
       : "/default-profile.png";
 
-  const displayName = author?.nickname || post.user?.nickName || "익명 사용자";
+  const displayName = author?.nickName || "익명 사용자";
 
   // ✅ post.createdAt || comment.createdAt 대응
   const dateStr = post.createdAt || post.commentCreatedAt;
