@@ -6,6 +6,7 @@ const PlantIdentification = () => {
   const [result, setResult] = useState(null);
 
   const handleResult = (data) => {
+    console.log("📥 부모가 받은 결과:", data);
     setResult(data);
   };
 
