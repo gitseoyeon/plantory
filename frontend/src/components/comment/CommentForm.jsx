@@ -12,7 +12,7 @@ const CommentForm = ({ postId, parentId, onAddComment }) => {
     try {
       await commentService.createComment(postId, { content, parentId });
       setContent("");
-      onAddComment?.(); // ✅ 작성 후 새로고침 트리거
+      onAddComment?.({ content });
     } catch (err) {
       console.error("댓글 작성 실패:", err);
       alert("댓글 등록 중 오류가 발생했습니다.");
