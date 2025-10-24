@@ -17,13 +17,13 @@ export const commentService = {
 
   // 댓글 수정
   async updateComment(postId, commentId, data) {
-    const response = await api.put(`/api/comments/posts/${postId}/${commentId}`, data);
+    const response = await api.put(`/api/comments/${commentId}`, data);
     return response.data;
   },
 
   // 댓글 삭제
   async deleteComment(postId, commentId) {
-    const response = await api.delete(`/api/comments/posts/${postId}/${commentId}`);
+    const response = await api.delete(`/api/comments/${commentId}`);
     return response.data;
   },
 
@@ -35,7 +35,9 @@ export const commentService = {
 
   // 댓글 좋아요 토글
   async toggleLike(postId, commentId) {
-    const response = await api.post(`/api/comments/posts/${postId}/${commentId}/like`);
+    const response = await api.post(`/api/comments/${commentId}/like`);
     return response.data;
   },
 };
+
+export default commentService;

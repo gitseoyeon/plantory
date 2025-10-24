@@ -8,10 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    Page<Comment> findByPostIdAndParentIsNullOrderByCreatedAtDesc(Long postId, Pageable pageable);
+    List<Comment> findByPostIdAndParentIsNullOrderByCreatedAtDesc(Long postId);
+
+    @Query("SELECT DISTINCT c FROM Comment c LEFT JOIN FETCH c.children WHERE c.id = :id")
+    Optional<Comment> findByIdWithChildren(@Param("id") Long id);
 
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.post.id = :postId")
     Long countByPostId(@Param("postId") Long postId);

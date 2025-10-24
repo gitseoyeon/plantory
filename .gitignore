@@ -40,3 +40,6 @@ backend/*.yml.local
 
 # ---- Gradle/Maven Wrapper는 커밋해야 함 (Wrapper 디렉토리는 제외 금지)
 # gradle/wrapper/, gradlew, gradlew.bat, .mvn/wrapper/, mvnw, mvnw.cmd 는 커밋 OK
+
+# Node.js dependencies
+node_modules/
