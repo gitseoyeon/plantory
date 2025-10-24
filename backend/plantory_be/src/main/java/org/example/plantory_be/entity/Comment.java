@@ -10,8 +10,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 
 @Entity
 @Table(name = "comments",
@@ -54,8 +56,9 @@ public class Comment {
     @JsonBackReference
     private Comment parent;
 
-//    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @OrderBy("createdAt ASC")
-//    @JsonManagedReference
-//    private List<Comment> children = new ArrayList<>();
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt ASC")
+    @JsonManagedReference
+    private List<Comment> children = new ArrayList<>();
+
 }

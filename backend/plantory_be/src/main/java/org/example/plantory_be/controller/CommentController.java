@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.CommentRequest;
 import org.example.plantory_be.dto.response.CommentResponse;
+import org.example.plantory_be.entity.Comment;
 import org.example.plantory_be.entity.LikeTargetType;
 import org.example.plantory_be.service.CommentService;
 import org.example.plantory_be.service.LikeService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -33,13 +35,10 @@ public class CommentController {
     }
 
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<Page<CommentResponse>> getComments(
-            @PathVariable Long postId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+    public ResponseEntity<List<CommentResponse>> getComments(
+            @PathVariable Long postId
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<CommentResponse> comments = commentService.getComments(postId, pageable);
+        List<CommentResponse> comments = commentService.getCommentsByPost(postId);
         return ResponseEntity.ok(comments);
     }
 
