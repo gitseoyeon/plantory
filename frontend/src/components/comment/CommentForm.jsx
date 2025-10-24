@@ -1,24 +1,18 @@
 import { useState } from "react";
-import { commentService } from "../../services/comment";
+import useCommentStore from "../../store/commentStore";
 
 const CommentForm = ({ postId, parentId, onAddComment }) => {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
+  const { createComment, fetchComments } = useCommentStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
-    setLoading(true);
-    try {
-      await commentService.createComment(postId, { content, parentId });
-      setContent("");
-      onAddComment?.({ content });
-    } catch (err) {
-      console.error("댓글 작성 실패:", err);
-      alert("댓글 등록 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
-    }
+
+    await createComment(postId, content, parentId);
+    setContent(""); // ✅ 입력창 비우기
+    if (onAddComment) onAddComment(content);
   };
 
   return (

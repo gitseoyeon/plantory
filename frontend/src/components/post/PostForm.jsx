@@ -60,9 +60,9 @@ export default function PostForm() {
         alert("게시글이 수정되었습니다!");
         navigate(`/posts/${editingPost.id}`);
       } else {
-        await postService.createPost(formData);
+        const createdPost = await postService.createPost(formData);
         alert("게시글이 등록되었습니다!");
-        navigate("/posts");
+        navigate(`/posts/${createdPost.id}`);
       }
     } catch (err) {
       console.error(err);

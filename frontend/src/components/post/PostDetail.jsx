@@ -5,12 +5,14 @@ import PostLikeButton from "./PostLikeButton";
 import CommentList from "../comment/CommentList";
 import { postService } from "../../services/post";
 import CommunityAuthorProfile from "../ui/CommunityAuthorProfile";
+import useAuthStore from "../../store/authStore"; // ✅ 로그인 사용자 확인용
 
 export default function PostDetail() {
   const { postId } = useParams();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuthStore(); // ✅ 현재 로그인 사용자
 
   const fetchPost = async () => {
     try {
@@ -32,7 +34,7 @@ export default function PostDetail() {
     try {
       await postService.deletePost(post.id);
       alert("게시글이 삭제되었습니다.");
-      navigate("/posts");
+      navigate("/community");
     } catch (err) {
       console.error("게시글 삭제 실패:", err);
       alert("삭제 중 오류가 발생했습니다.");
@@ -53,6 +55,8 @@ export default function PostDetail() {
       </div>
     );
 
+  const isAuthor = user && post.user && user.id === post.user.id;
+
   return (
     <motion.div
       className="bg-white rounded-2xl shadow-md border border-gray-100 max-w-4xl mx-auto mt-10"
@@ -65,28 +69,31 @@ export default function PostDetail() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">{post.title}</h1>
 
-          <div className="flex gap-3 text-sm text-gray-500">
-            <Link
-              to={`/posts/edit/${post.id}`}
-              state={{ post }}
-              className="hover:text-green-600 transition"
-            >
-              수정
-            </Link>
-            <button
-              onClick={handleDelete}
-              className="hover:text-red-600 transition"
-            >
-              삭제
-            </button>
-          </div>
+          {/* ✅ 작성자일 때만 수정/삭제 버튼 표시 */}
+          {isAuthor && (
+            <div className="flex gap-3 text-sm text-gray-500">
+              <Link
+                to={`/posts/edit/${post.id}`}
+                state={{ post }}
+                className="hover:text-green-600 transition"
+              >
+                수정
+              </Link>
+              <button
+                onClick={handleDelete}
+                className="hover:text-red-600 transition"
+              >
+                삭제
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 작성자 */}
         <CommunityAuthorProfile post={post} />
       </div>
 
-      {/* ✅ 이미지 먼저 표시 */}
+      {/* ✅ 이미지 */}
       {post.imageUrl && (
         <div className="mt-6 flex justify-center">
           <img
@@ -97,12 +104,12 @@ export default function PostDetail() {
         </div>
       )}
 
-      {/* ✅ 본문 내용 */}
+      {/* ✅ 본문 */}
       <div className="p-6 text-gray-700 leading-relaxed whitespace-pre-wrap">
         {post.content}
       </div>
 
-      {/* 좋아요/댓글 */}
+      {/* 좋아요 */}
       <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-5 text-gray-500">
         <PostLikeButton post={post} />
       </div>

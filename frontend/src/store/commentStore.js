@@ -33,29 +33,34 @@ const useCommentStore = create((set, get) => ({
   createComment: async (postId, content, parentId = null) => {
     set({ loading: true, error: null });
     try {
-      const newComment = await commentService.createComment(
-        postId,
+      // ✅ 댓글 생성 요청
+      const newComment = await commentService.createComment(postId, {
         content,
-        parentId
-      );
+        parentId,
+      });
 
+      // ✅ 전체 다시 fetch하지 않고, 현재 state에 직접 추가
       set((state) => {
-        if (!parentId) {
-          // 일반 댓글
-          return { comments: [newComment, ...state.comments], loading: false };
+        let updatedComments;
+        if (parentId) {
+          // ✅ 대댓글이면 부모에 추가
+          updatedComments = addReplyToParent(
+            state.comments,
+            parentId,
+            newComment
+          );
+        } else {
+          // ✅ 일반 댓글이면 맨 앞에 추가
+          updatedComments = [newComment, ...state.comments];
         }
 
-        // 대댓글
-        return {
-          comments: addReplyToParent(state.comments, parentId, newComment),
-          loading: false,
-        };
+        return { comments: updatedComments, loading: false };
       });
     } catch (err) {
-      set({
-        loading: false,
-        error: err.response?.data?.message || "댓글 등록 실패",
-      });
+      console.error("❌ 댓글 생성 실패:", err);
+      set({ error: err });
+    } finally {
+      set({ loading: false });
     }
   },
 

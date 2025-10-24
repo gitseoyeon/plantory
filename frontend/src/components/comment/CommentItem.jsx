@@ -6,6 +6,8 @@ import useCommentStore from "../../store/commentStore";
 import useAuthStore from "../../store/authStore"; // ✅ 현재 로그인 유저 확인용 (authStore 사용 중이라 가정)
 
 const CommentItem = ({ comment, postId, depth = 0 }) => {
+  console.log("댓글 유저:", comment.user);
+
   const { createComment, updateComment, deleteComment, toggleLike } =
     useCommentStore();
   const { user } = useAuthStore(); // ✅ 현재 로그인 유저 정보
@@ -36,10 +38,8 @@ const CommentItem = ({ comment, postId, depth = 0 }) => {
 
   /** ✅ 대댓글 작성 */
   const handleReply = async (content) => {
-    await createComment(postId, content, comment.id);
     setShowReplyForm(false);
   };
-
   // ✅ 현재 댓글 작성자인지 여부 확인
   const isAuthor = user && user.id === comment.user?.id;
 
