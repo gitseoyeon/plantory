@@ -56,7 +56,7 @@ const PlantDetail = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6 px-39">
+      <div className="flex items-center justify-between mb-6 px-41">
         <h1 className="text-3xl font-bold flex items-center gap-2 text-green-700">
           🌻 <span>사용자 식물 상세보기</span>
         </h1>
@@ -64,10 +64,10 @@ const PlantDetail = () => {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition-all"
+          className="p-2 rounded-lg hover:bg-green-100 cursor-pointer transition-all"
           title="뒤로가기"
         >
-          <IoMdArrowRoundBack size={30} />
+          <IoMdArrowRoundBack size={30} className="text-green-700" />
         </button>
       </div>
       <div className="max-w-3xl mx-auto shadow-sm border border-gray-200 rounded-2xl p-6 mt-10 space-y-6">
@@ -107,7 +107,7 @@ const PlantDetail = () => {
         </div>
         <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden">
           <img
-            src={plant.imageUrl || noImage}
+            src={`${import.meta.env.VITE_API_URL}${plant.imageUrl || noImage}`}
             alt={plant.name || "plant"}
             className="w-full h-full object-cover"
             onError={(e) => {

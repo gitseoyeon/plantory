@@ -90,7 +90,7 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
         >
           {imageUrl ? (
             <img
-              src={imageUrl}
+              src={`${import.meta.env.VITE_API_URL}${imageUrl}`}
               alt={name || "plant"}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -148,7 +148,7 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
 
         {canManage && (
           <div className="flex">
-            <button type="button" onClick={() => onEdit?.(plant)}>
+            <button type="button" onClick={() => alert("준비중입니다")}>
               <PiPencilSimpleLineBold
                 size={30}
                 className="px-1 py-1 text-gray-500 rounded-md bg-white hover:bg-gray-200"

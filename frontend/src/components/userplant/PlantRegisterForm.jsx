@@ -103,6 +103,7 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
         res.imageUrlPath ||
         res.fileName ||
         "";
+      console.log("[시작]", imageUrl);
       setUploadedUrl(imageUrl);
       setForm((prev) => ({
         ...prev,
@@ -218,6 +219,24 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
   const onSubmit = async (e) => {
     e.preventDefault();
 
+    let imageUrl = form.imageUrl;
+
+    // 파일이 선택되어 있고 아직 업로드 안 된 경우
+    if (form.imageFile && !form.imageUrl) {
+      try {
+        const res = await uploadPlantPhoto(form.imageFile);
+        imageUrl =
+          res.imageUrl ||
+          res.url ||
+          res.path ||
+          res.imageUrlPath ||
+          res.fileName;
+      } catch (err) {
+        alert("이미지 업로드 실패: " + (err.message || err));
+        return;
+      }
+    }
+
     let speciesId = form.speciesId;
     if (!speciesId && form.speciesName) {
       speciesId = getSpeciesIdByName(form.speciesName, speciesIndex);
@@ -227,8 +246,8 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
       }
     }
 
-    const payload = buildCreatePlantPayload({ ...form, speciesId });
-    //console.log(payload);
+    const payload = buildCreatePlantPayload({ ...form, speciesId, imageUrl });
+    console.log(payload);
 
     try {
       const res = await createPlant(payload);
