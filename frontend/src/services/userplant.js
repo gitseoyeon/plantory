@@ -1,6 +1,6 @@
 import api from "./api";
 
-const userplantService = {
+const userPlantService = {
   createPlant: async (data) => {
     const res = await api.post("/api/plant", data);
     return res.data;
@@ -38,4 +38,4 @@ const userplantService = {
   },
 };
 
-export default userplantService;
+export default userPlantService;

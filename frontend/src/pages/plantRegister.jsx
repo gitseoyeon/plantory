@@ -16,8 +16,8 @@ const PlantRegister = ({ onClose, onSuccess }) => {
 
   const tabs = [
     { key: "register", label: "식물 등록", color: "bg-lime-500" },
-    { key: "diary", label: "성장 기록", color: "bg-sky-400" },
-    { key: "observe", label: "일지 작성", color: "bg-yellow-400" },
+    { key: "diary", label: "성장 일지", color: "bg-sky-400" },
+    { key: "observe", label: "관리 일지", color: "bg-yellow-400" },
   ];
 
   return (
@@ -65,7 +65,7 @@ const PlantRegister = ({ onClose, onSuccess }) => {
                   <option value="">🌱 반려 식물 선택</option>
                   {plants.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.petName || p.name}
+                      {p.name}({p.petName})
                     </option>
                   ))}
                 </select>
@@ -89,8 +89,12 @@ const PlantRegister = ({ onClose, onSuccess }) => {
           {tab === "register" && (
             <PlantRegisterForm onSuccess={onSuccess} onClose={onClose} />
           )}
-          {tab === "diary" && <PlantDiaryForm plantId={selectedPlantId} />}
-          {tab === "observe" && <PlantObserveForm plantId={selectedPlantId} />}
+          {tab === "diary" && (
+            <PlantDiaryForm plantId={selectedPlantId} onClose={onClose} />
+          )}
+          {tab === "observe" && (
+            <PlantObserveForm plantId={selectedPlantId} onClose={onClose} />
+          )}
         </main>
       </div>
     </div>

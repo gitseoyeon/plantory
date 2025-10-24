@@ -2,16 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import useUserPlantStore from "../store/userPlantStore";
 import noImage from "../assets/no_image.png";
+import useUserPlantDiaryStore from "../store/userDiaryStore";
+import PlantDiaryList from "../components/userplant/PlantDiaryList";
 
 const PlantDetail = () => {
   const { plantId } = useParams();
   const location = useLocation();
   const passedPlant = location.state?.plant;
-  const { getPlantById } = useUserPlantStore();
+  const getPlantById = useUserPlantStore((s) => s.getPlantById);
+  const diaries = useUserPlantDiaryStore((s) => s.diaries);
+  const listPlantDiary = useUserPlantDiaryStore((s) => s.listPlantDiary);
+
   const [plant, setPlant] = useState(passedPlant);
 
   useEffect(() => {
     if (!passedPlant && plantId) {
+      //처음한번은 목록에서 받고, 사용자가 새로고침할경우 처리
       const fetchPlant = async () => {
         try {
           const data = await getPlantById(plantId);
@@ -24,6 +30,22 @@ const PlantDetail = () => {
     }
   }, [plantId, passedPlant, getPlantById]);
 
+  const loadDiaries = async () => {
+    try {
+      await listPlantDiary(plantId);
+    } catch (err) {
+      console.error("다이어리 불러오기 실패:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (plantId) loadDiaries();
+  }, [plantId]);
+
+  const handleDelete = async () => {
+    await loadDiaries(); // 삭제 후 다시 불러오기
+  };
+
   if (!plant) {
     return (
       <div className="text-gray-600 p-6">🌱 식물 정보를 불러오는 중...</div>
@@ -31,7 +53,7 @@ const PlantDetail = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow rounded-2xl p-6 mt-10 space-y-6">
+    <div className="max-w-3xl mx-auto shadow-sm border border-gray-200 rounded-2xl p-6 mt-10 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
@@ -42,6 +64,14 @@ const PlantDetail = () => {
               {plant.petName}
             </p>
           )}
+          <p className="text-gray-500 text-sm mt-1 flex items-center  gap-10">
+            <span>🌿 종 : {plant.speciesName || "-"}</span>
+            <span>
+              {plant.acquiredDate
+                ? ` 구입일/분양일 : ${plant.acquiredDate}`
+                : "-"}
+            </span>
+          </p>
         </div>
 
         {plant.qrImageUrl && (
@@ -70,34 +100,27 @@ const PlantDetail = () => {
         />
       </div>
       <div className="text-gray-700 text-base space-y-2">
-        <p className="flex items-center gap-4">
-          <span>🌿 종 : {plant.speciesName || "-"}</span>
-          <p className="text-gray-500 text-sm mt-1">
-            {plant.acquiredDate ? `구입/분양일 : ${plant.acquiredDate}` : "-"}
-          </p>
-        </p>
-
-        <p className="flex items-center gap-4">
+        <p className="flex items-center gap-10">
           <span>📍 위치 : {plant.location || "-"}</span>
-          <span>🪴 화분 크기 : {plant.potSize || "-"}</span>
+          <span>🏪 구입처 : {plant.store || "-"}</span>
+        </p>
+        <p className="flex items-center gap-10">
+          <span>
+            💵 가격 : {plant.price ? `${plant.price.toLocaleString()}원` : "-"}
+          </span>
+          <span>🪴 화분 크기 : {plant.potSizeLabel || "-"}</span>
         </p>
       </div>
-      {/* 
-      <section>
-        <h2 className="text-xl font-semibold mb-4 text-sky-600 flex items-center gap-2">
-          📖 성장일지
-        </h2>
-        <ul className="space-y-3">
-          <li key={plant.id} className="border border-gray-200 rounded-xl p-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-gray-800">제목</h3>
-              <span className="text-sm text-gray-500">일지 날짜</span>
-            </div>
-            <p className="text-gray-600 mt-1 text-sm line-clamp-2">내용</p>
-          </li>
-        </ul>
-      </section>
-      */}
+
+      <PlantDiaryList
+        page={diaries}
+        plantOwnerId={plant.userId}
+        plantId={plantId}
+        onEdit={(d) => {
+          alert("준비중입니다.");
+        }}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };

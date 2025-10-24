@@ -29,6 +29,7 @@ public class UserPlantResponse {
     private String store;
     private BigDecimal price;
     private PotSize potSize;
+    private String potSizeLabel;
     private String qrUrl;
     private String qrImageUrl;
     private LocalDateTime createdAt;
@@ -48,6 +49,7 @@ public class UserPlantResponse {
                 .store(entity.getStore())
                 .price(entity.getPrice())
                 .potSize(entity.getPotSize())
+                .potSizeLabel(entity.getPotSize() != null ? entity.getPotSize().getLabel() : null)
                 .qrUrl(entity.getQrUrl())
                 .qrImageUrl(entity.getQrImageUrl())
                 .createdAt(entity.getCreatedAt())
