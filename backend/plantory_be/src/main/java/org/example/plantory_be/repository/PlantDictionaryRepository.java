@@ -13,15 +13,19 @@ public interface PlantDictionaryRepository extends JpaRepository<PlantDictionary
 
     Optional<PlantDictionary> findByPerenualId(Long perenualId);
 
+    // 검색 대상: commonName(영문 일반명), englishName(영어명), scientificName(학명), koreanName(한글명), origin(원산지), familyName(과 이름)
     @Query("""
-        SELECT p FROM PlantDictionary p
-        WHERE (:query IS NULL OR TRIM(:query) = '' 
-               OR LOWER(CAST(p.commonName AS string)) LIKE LOWER(CONCAT('%', TRIM(:query), '%'))
-               OR LOWER(CAST(p.koreanName AS string)) LIKE LOWER(CONCAT('%', TRIM(:query), '%'))
-               OR LOWER(CAST(p.englishName AS string)) LIKE LOWER(CONCAT('%', TRIM(:query), '%'))
-               OR LOWER(CAST(p.scientificName AS string)) LIKE LOWER(CONCAT('%', TRIM(:query), '%'))
-               OR LOWER(CAST(p.origin AS string)) LIKE LOWER(CONCAT('%', TRIM(:query), '%'))
-               OR LOWER(CAST(p.familyName AS string)) LIKE LOWER(CONCAT('%', TRIM(:query), '%')))
-        """)
+    SELECT p FROM PlantDictionary p
+    WHERE (:query IS NULL OR TRIM(:query) = ''
+           OR REPLACE(LOWER(p.commonName), ' ', '') LIKE LOWER(CONCAT('%', REPLACE(TRIM(:query), ' ', ''), '%'))
+           OR REPLACE(LOWER(p.koreanName), ' ', '') LIKE LOWER(CONCAT('%', REPLACE(TRIM(:query), ' ', ''), '%'))
+           OR REPLACE(LOWER(p.englishName), ' ', '') LIKE LOWER(CONCAT('%', REPLACE(TRIM(:query), ' ', ''), '%'))
+           OR REPLACE(LOWER(p.scientificName), ' ', '') LIKE LOWER(CONCAT('%', REPLACE(TRIM(:query), ' ', ''), '%'))
+           OR REPLACE(LOWER(p.origin), ' ', '') LIKE LOWER(CONCAT('%', REPLACE(TRIM(:query), ' ', ''), '%'))
+           OR REPLACE(LOWER(p.familyName), ' ', '') LIKE LOWER(CONCAT('%', REPLACE(TRIM(:query), ' ', ''), '%'))
+    )
+""")
     List<PlantDictionary> searchPlants(@Param("query") String query);
+
+
 }
