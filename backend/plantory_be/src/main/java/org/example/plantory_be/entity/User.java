@@ -61,6 +61,7 @@ public class User implements UserDetails {
     public UserPrivateProfileResponse updateProfile(UserProfileUpdateRequest profile) {
         this.email = profile.getEmail();
         this.username = profile.getUsername();
+        this.nickName = profile.getNickname();
         this.profileImageUrl = profile.getProfileImageUrl();
         this.bio = profile.getBio();
         this.experience = profile.getExperience();
@@ -69,6 +70,7 @@ public class User implements UserDetails {
         return UserPrivateProfileResponse.builder()
                 .email(email)
                 .username(username)
+                .nickname(nickName)
                 .profileImageUrl(profileImageUrl)
                 .bio(bio)
                 .experience(experience)

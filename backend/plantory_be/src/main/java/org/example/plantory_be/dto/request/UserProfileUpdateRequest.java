@@ -16,6 +16,7 @@ public class UserProfileUpdateRequest {
     @NotBlank(message = "사용자명은 필수 값 입니다.")
     private String username;
 
+    private String nickname;
     private String profileImageUrl;
     private String bio;
     private String experience;

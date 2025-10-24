@@ -3,10 +3,8 @@ import FeedCard from "../components/FeedCard";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import PlantRegister from "./plantRegister";
-import PlantList from "../components/userplant/PlantList";
-import userplantService from "../services/userplant";
 import AllPlantList from "../components/feed/AllPlantList";
-import Sidebar from "../components/sidebar";
+import Sidebar from "../components/Sidebar";
 import logoAnimal from "../assets/logo_animal.png";
 import { postService } from "../services/post";
 
@@ -20,14 +18,14 @@ export default function Home() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
 
-  // ✅ 일지 목록 불러오기
+  // ✅ 유저 식물 목록 불러오기
   useEffect(() => {
     const fetchPlants = async () => {
       try {
         const data = await userplantService.getAllPlants(0, 10);
         setFeeds(data.content || []);
       } catch (err) {
-        console.error("❌ 일지 목록 불러오기 실패:", err);
+        console.error("❌ 사용자 식물 목록 불러오기 실패:", err);
       } finally {
         setLoading(false);
       }
@@ -100,7 +98,7 @@ export default function Home() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800">
-                  🌿 전체 성장 일지 미리보기
+                  🌿 사용자 식물 미리보기
                 </h2>
                 <button
                   onClick={() => navigate("/growth")}
@@ -162,7 +160,7 @@ export default function Home() {
                         </div>
                         <div className="text-sm text-gray-400 flex items-center gap-2">
                           <span className="truncate">
-                            {post.user?.username || "익명"}
+                            {post.user?.nickName || "익명"}
                           </span>
                           <span className="text-gray-300">|</span>
                           <span>
@@ -175,7 +173,9 @@ export default function Home() {
                     ))
                   ) : (
                     <div className="p-4 text-gray-500 text-center">
-                      게시글이 없습니다.
+                      {isAuthenticated
+                        ? "게시글이 없습니다."
+                        : "로그인 후 이용 가능합니다."}
                     </div>
                   )}
                 </div>
@@ -185,7 +185,7 @@ export default function Home() {
         </div>
 
         {/* 사이드바 */}
-        <div className="w-80 h-auto bg-white rounded-xl border border-gray-200 shadow-sm self-start mt-10">
+        <div className="w-80 h-auto rounded-xl self-start mt-10">
           <Sidebar />
         </div>
       </div>
