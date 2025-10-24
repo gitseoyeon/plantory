@@ -13,6 +13,8 @@ import Register from "./pages/register";
 import Home from "./pages/home";
 import OAuthCallback from "./pages/oauthCallback";
 import useAuthStore from "./store/authStore";
+
+// 식물 정보
 import MyPage from "./pages/myPage";
 import UserProfile from "./pages/userProfile";
 
@@ -21,8 +23,10 @@ import PlantDetail from "./pages/userPlantDetail";
 import PlantList from "./components/userplant/PlantList";
 
 //식물 백과사전
+import PlantPage from "./pages/PlantPage";
 import PlantDictionaryList from "./pages/PlantDictionaryList";
 import PlantDictionaryDetail from "./pages/PlantDictionaryDetail";
+import PlantIdentification from "./pages/PlantIdentification";
 
 //커뮤니티
 import Community from "./pages/community";
@@ -58,9 +62,12 @@ function AppLayout() {
           <Route path="/users/:userId" element={<UserProfile />} />
           <Route path="/plants" element={<PlantList />} />
           <Route path="/plant/:plantId" element={<PlantDetail />} />
-
-          {/* 식물 백과사전 */}
-          <Route path="/dictionary" element={<PlantDictionaryList />} />
+          
+          {/* 식물정보 */}
+          <Route path="/dictionary/*" element={<PlantPage />}>
+            <Route path="list" element={<PlantDictionaryList />} />
+            <Route path="identify" element={<PlantIdentification />} />
+          </Route>
           <Route path="/dictionary/:id" element={<PlantDictionaryDetail />} />
 
           {/* 커뮤니티 */}
