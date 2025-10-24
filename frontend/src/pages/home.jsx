@@ -101,7 +101,7 @@ export default function Home() {
                   🌿 사용자 식물 미리보기
                 </h2>
                 <button
-                  onClick={() => navigate("/growth")}
+                  onClick={() => navigate("/plants")}
                   className="text-green-600 font-medium hover:underline"
                 >
                   더보기 →
