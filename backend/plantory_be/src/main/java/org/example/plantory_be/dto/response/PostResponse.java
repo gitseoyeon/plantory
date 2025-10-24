@@ -19,7 +19,7 @@ public class PostResponse {
     private String title;
     private String content;
     private PostCategory category;
-//    private String imageUrl;
+    private String imageUrl;
     private UserDto user;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -34,7 +34,7 @@ public class PostResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .category(post.getCategory())
-//                .imageUrl(post.getImageUrl())
+                .imageUrl(post.getImageUrl())
                 .user(UserDto.fromEntity(post.getUser()))
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())

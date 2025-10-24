@@ -30,17 +30,13 @@ import PlantIdentification from "./pages/PlantIdentification";
 
 //커뮤니티
 import Community from "./pages/community";
-import PostCreate from "./pages/postCreate";
 import PostDetail from "./components/post/PostDetail";
-import PostItem from "./components/post/PostItem";
 import PostForm from "./components/post/PostForm";
 import PostList from "./components/post/PostList";
 
 function AppLayout() {
   const location = useLocation();
   const hideNavbar = ["/login", "/register"].includes(location.pathname);
-  // Debug: log current pathname
-  console.log("Current pathname:", location.pathname);
 
   const { isAuthenticated } = useAuthStore();
 
@@ -72,11 +68,9 @@ function AppLayout() {
 
           {/* 커뮤니티 */}
           <Route path="/community" element={<Community />} />
-          <Route path="/community/write" element={<PostCreate />} />
+          <Route path="/community/write" element={<PostForm />} />
           <Route path="/posts/:postId" element={<PostDetail />} />
           <Route path="/posts" element={<PostList />} />
-          <Route path="/posts/:postId" element={<PostItem />} />
-          <Route path="/posts/new" element={<PostForm />} />
           <Route path="/posts/edit/:postId" element={<PostForm />} />
         </Routes>
       </div>

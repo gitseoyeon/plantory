@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.plantory_be.dto.request.PostRequest;
 import org.example.plantory_be.dto.response.PostResponse;
+import org.example.plantory_be.entity.LikeTargetType;
 import org.example.plantory_be.entity.Post;
 import org.example.plantory_be.entity.User;
 import org.example.plantory_be.exception.ResourceNotFoundException;
 import org.example.plantory_be.exception.UnauthorizedException;
+import org.example.plantory_be.repository.CommentRepository;
+import org.example.plantory_be.repository.LikeRepository;
 import org.example.plantory_be.repository.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +25,15 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final AuthenticationService authenticationService;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     public PostResponse createPost(PostRequest request) {
         User currentUser = authenticationService.getCurrentUser();
 
         Post post = Post.builder()
                 .content(request.getContent())
+                .imageUrl(request.getImageUrl())
                 .title(request.getTitle())
                 .category(request.getCategory())
                 .user(currentUser)
@@ -44,6 +50,13 @@ public class PostService {
         Page<Post> posts = postRepository.findAllActive(pageable);
         return posts.map(post -> {
             PostResponse response = PostResponse.fromEntity(post);
+            Long likeCount = likeRepository.countByTargetTypeAndId(post.getId(), LikeTargetType.POST);
+            boolean isLiked = likeRepository.existsByUserAndTargetIdAndTargetType(currentUser, post.getId(), LikeTargetType.POST);
+            Long commentCount = commentRepository.countByPostId(post.getId());
+
+            response.setLikeCount(likeCount);
+            response.setLiked(isLiked);
+            response.setCommentCount(commentCount);
             return response;
         });
     }

@@ -1,34 +1,38 @@
-import { useEffect, useState } from "react";
-import { commentService } from "../../services/comment";
-import CommentItem from "./CommentItem";
+import { useEffect } from "react";
+import useCommentStore from "../../store/commentStore";
+import ReplyItem from "./ReplyItem";
+import CommentForm from "./CommentForm";
 
 const ReplyList = ({ postId, parentId }) => {
-  const [replies, setReplies] = useState([]);
+  const { comments, createComment, toggleLike, fetchComments } = useCommentStore();
 
-  const fetchReplies = async () => {
-    try {
-      const res = await commentService.getReplies(postId, parentId);
-      const data = Array.isArray(res) ? res : res.content || [];
-      setReplies(data);
-    } catch (err) {
-      console.error("대댓글 불러오기 실패:", err);
-    }
-  };
+  const parent = comments.find((c) => c.id === parentId);
+  const replies = parent?.replies || [];
 
   useEffect(() => {
-    fetchReplies();
-  }, [postId, parentId]);
+    fetchComments(postId);
+  }, [postId]);
+
+  const handleAddReply = async (newReply) => {
+    await createComment(postId, newReply.content, parentId);
+  };
 
   return (
-    <div className="space-y-3">
+    <div className="mt-2 ml-8 border-l border-gray-200 pl-4 space-y-2">
       {replies.map((reply) => (
-        <CommentItem
+        <ReplyItem
           key={reply.id}
-          comment={reply}
+          reply={reply}
           postId={postId}
-          onRefresh={fetchReplies} // ✅ 대댓글 새로고침
+          onLike={() => toggleLike(postId, reply.id)}
         />
       ))}
+
+      <CommentForm
+        postId={postId}
+        parentId={parentId}
+        onSubmit={handleAddReply}
+      />
     </div>
   );
 };
