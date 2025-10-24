@@ -20,7 +20,7 @@ public class PlantIdentificationController {
      * [수동 호출용]
      * 사용자가 업로드한 이미지로 식물 식별 실행
      */
-    @PostMapping("/identify")
+    @PostMapping("/identification")
     public ResponseEntity<PlantIdentificationResponse> identifyPlant(
         @RequestParam("image") MultipartFile image) {
         PlantIdentificationResponse result = plantIdentificationService.identifyAndSave(image);

@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.plantory_be.dto.response.PlantIdentificationResponse;
 import org.example.plantory_be.entity.PlantIdentification;
 import org.example.plantory_be.repository.PlantIdentificationRepository;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 
@@ -28,112 +30,154 @@ public class PlantIdentificationService {
     private String baseUrl;
 
     /**
-     * [자동 호출]
-     * DB가 비어 있으면 Plant.id API를 자동 호출하여 초기 데이터 생성
+     * ✅ DB에 데이터가 없으면 샘플 이미지로 자동 호출
      */
     public List<PlantIdentification> getOrFetchAllIdentifications() {
         List<PlantIdentification> existing = plantIdentificationRepository.findAll();
-
         if (!existing.isEmpty()) {
-            log.info("기존 식별 데이터가 존재합니다. 자동 호출 생략.");
+            log.info("✅ 기존 식별 데이터 존재 — 자동 호출 생략");
             return existing;
         }
 
-        log.info("⚙️ DB 비어 있음 → Plant.id API 자동 호출 시작");
-        // 샘플 이미지 URL (테스트용)
-        String sampleImageUrl = "https://example.com/sample-plant.jpg";
-        identifyAndSaveFromUrl(sampleImageUrl);
+        log.info("⚙️ DB 비어 있음 — 샘플 이미지로 자동 호출 실행");
+        String sampleUrl = "https://upload.wikimedia.org/wikipedia/commons/3/36/Hydrangea_macrophylla2.jpg";
+        identifyAndSaveFromUrl(sampleUrl);
 
         return plantIdentificationRepository.findAll();
     }
 
     /**
-     * [수동 호출]
-     * 사용자가 업로드한 이미지로 식물 식별
+     * ✅ 업로드된 이미지 파일을 식별하고 결과 + 이미지 저장
      */
     public PlantIdentificationResponse identifyAndSave(MultipartFile image) {
         try {
-            byte[] imageBytes = image.getBytes();
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-
-            RestTemplate restTemplate = new RestTemplate();
-            String apiUrl = baseUrl + "/identify";
-
-            // 요청 바디 구성
-            var request = new java.util.HashMap<String, Object>();
-            request.put("api_key", apiKey);
-            request.put("images", List.of(base64Image));
-
-            var response = restTemplate.postForObject(apiUrl, request, org.json.JSONObject.class);
-
-            if (response == null) {
-                throw new RuntimeException("AI 응답이 null입니다.");
+            if (image == null || image.isEmpty()) {
+                throw new RuntimeException("이미지 파일이 비어 있습니다.");
             }
 
-            // 예시 응답 파싱
-            String plantName = response.getJSONArray("suggestions")
-                .getJSONObject(0)
-                .getJSONObject("plant")
-                .getString("name");
+            String contentType = image.getContentType();
+            if (contentType == null ||
+                !(contentType.equals("image/jpeg") || contentType.equals("image/png"))) {
+                throw new RuntimeException("지원되지 않는 이미지 형식입니다. JPG 또는 PNG 파일을 업로드하세요.");
+            }
 
-            double probability = response.getJSONArray("suggestions")
-                .getJSONObject(0)
-                .getDouble("probability");
+            log.info("업로드된 파일: {} ({} bytes, type={})",
+                image.getOriginalFilename(), image.getSize(), contentType);
 
-            // DB 저장 (엔티티 필드명 기준)
+            // ✅ 순수 Base64 인코딩 (data: prefix 제거)
+            String base64 = Base64.getEncoder().encodeToString(image.getBytes());
+
+            // ✅ v3 포맷: Plant.id는 'images', 'similar_images', 'classification_level'만 허용
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("images", new JSONArray().put(base64));
+            requestJson.put("similar_images", true);
+            requestJson.put("classification_level", "species");
+
+            log.info("📤 요청 JSON = {}", requestJson.toString(2));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Api-Key", apiKey);
+
+            String apiUrl = baseUrl + "/identification";
+            HttpEntity<String> request = new HttpEntity<>(requestJson.toString(), headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response =
+                restTemplate.exchange(apiUrl, HttpMethod.POST, request, String.class);
+
+            log.info("응답 코드: {}", response.getStatusCode());
+            log.info("응답 본문: {}", response.getBody());
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("식별 API 호출 실패: " + response.getStatusCode());
+            }
+
+            JSONObject json = new JSONObject(response.getBody());
+            JSONArray suggestions = json
+                .optJSONObject("result")
+                .optJSONObject("classification")
+                .optJSONArray("suggestions");
+
+            if (suggestions == null || suggestions.isEmpty()) {
+                throw new RuntimeException("식별 결과를 찾을 수 없습니다.");
+            }
+
+            JSONObject first = suggestions.getJSONObject(0);
+            String plantName = first.optString("name", "Unknown");
+            double probability = first.optDouble("probability", 0) * 100;
+
+            // ✅ 유사 이미지 추출
+            String imageUrl = null;
+            JSONArray similarImages = first.optJSONArray("similar_images");
+            if (similarImages != null && !similarImages.isEmpty()) {
+                imageUrl = similarImages.getJSONObject(0).optString("url", null);
+            }
+
             PlantIdentification identification = PlantIdentification.builder()
                 .identifiedName(plantName)
-                .confidence(probability * 100)
+                .confidence(probability)
                 .build();
 
             plantIdentificationRepository.save(identification);
+            log.info("✅ 식물 식별 완료 및 저장: {} (정확도: {}%)", plantName, Math.round(probability));
 
-            // 응답 DTO는 문자열 퍼센트 형태로 반환
-            return new PlantIdentificationResponse(plantName, Math.round(probability * 100) + "%");
+            return new PlantIdentificationResponse(
+                plantName,
+                Math.round(probability) + "%",
+                imageUrl
+            );
 
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 변환 실패: " + e.getMessage());
         } catch (Exception e) {
             log.error("식별 API 호출 실패: {}", e.getMessage());
-            throw new RuntimeException("식별 API 호출 실패");
+            throw new RuntimeException("식별 API 호출 실패: " + e.getMessage());
         }
     }
 
     /**
-     * [내부 자동 호출 전용: URL 기반 요청]
+     * ✅ 자동 호출용 (URL 기반 식별)
      */
     private void identifyAndSaveFromUrl(String imageUrl) {
         try {
             RestTemplate restTemplate = new RestTemplate();
-            String apiUrl = baseUrl + "/identify-url";
+            String apiUrl = baseUrl + "/identification";
 
-            var request = new java.util.HashMap<String, Object>();
-            request.put("api_key", apiKey);
-            request.put("images", List.of(imageUrl));
+            JSONObject requestJson = new JSONObject();
+            requestJson.put("images", new JSONArray(List.of(imageUrl)));
+            requestJson.put("similar_images", true);
+            requestJson.put("classification_level", "species");
 
-            var response = restTemplate.postForObject(apiUrl, request, org.json.JSONObject.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Api-Key", apiKey);
 
-            if (response == null) {
-                throw new RuntimeException("AI 응답이 null입니다.");
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestJson.toString(), headers);
+            ResponseEntity<String> responseEntity =
+                restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity, String.class);
+
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                JSONObject json = new JSONObject(responseEntity.getBody());
+                JSONArray suggestions = json
+                    .optJSONObject("result")
+                    .optJSONObject("classification")
+                    .optJSONArray("suggestions");
+
+                if (suggestions != null && !suggestions.isEmpty()) {
+                    JSONObject first = suggestions.getJSONObject(0);
+                    String plantName = first.optString("name", "Unknown");
+                    double probability = first.optDouble("probability", 0) * 100;
+
+                    PlantIdentification identification = PlantIdentification.builder()
+                        .identifiedName(plantName)
+                        .confidence(probability)
+                        .build();
+
+                    plantIdentificationRepository.save(identification);
+                    log.info("✅ 자동 식별 완료: {}", plantName);
+                }
+            } else {
+                log.error("자동 식별 실패: {}", responseEntity.getStatusCode());
             }
-
-            String plantName = response.getJSONArray("suggestions")
-                .getJSONObject(0)
-                .getJSONObject("plant")
-                .getString("name");
-
-            double probability = response.getJSONArray("suggestions")
-                .getJSONObject(0)
-                .getDouble("probability");
-
-            PlantIdentification identification = PlantIdentification.builder()
-                .identifiedName(plantName)
-                .confidence(probability * 100)
-                .build();
-
-            plantIdentificationRepository.save(identification);
-            log.info("자동 식별 데이터 저장 완료: {}", plantName);
-
         } catch (Exception e) {
             log.error("자동 식별 중 오류 발생: {}", e.getMessage());
         }

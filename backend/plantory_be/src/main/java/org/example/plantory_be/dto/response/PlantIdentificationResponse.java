@@ -8,4 +8,5 @@ import lombok.Getter;
 public class PlantIdentificationResponse {
     private String plantName;
     private String confidence;
+    private String imageUrl;
 }
