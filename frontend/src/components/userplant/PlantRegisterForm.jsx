@@ -39,6 +39,82 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
     qr: false,
   });
 
+  const uploadPlantPhoto = async (file) => {
+    if (!file) {
+      throw new Error("업로드할 파일이 없습니다.");
+    }
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token || token === "undefined" || token === "null") {
+        throw new Error("유효한 토큰이 없습니다. 다시 로그인해주세요.");
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadUrl = `${import.meta.env.VITE_API_URL}/api/plant/photo`;
+
+      const res = await fetch(uploadUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("[upload] 서버 응답 오류:", res.status, text);
+        throw new Error(`업로드 실패 (${res.status})`);
+      }
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        console.log("[upload] 서버 응답:", data);
+        return data;
+      } else {
+        const text = await res.text();
+        console.error("[upload] JSON 아님:", text);
+        throw new Error("서버가 JSON 대신 HTML을 반환했습니다.");
+      }
+    } catch (err) {
+      console.error("[upload] 에러:", err);
+      throw err;
+    }
+  };
+
+  // 파일 선택
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files?.[0];
+
+    if (!selectedFile) return;
+
+    setFile(selectedFile);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
+
+    try {
+      const res = await uploadPlantPhoto(selectedFile);
+      const imageUrl =
+        res.imageUrl ||
+        res.url ||
+        res.path ||
+        res.imageUrlPath ||
+        res.fileName ||
+        "";
+      setUploadedUrl(imageUrl);
+      setForm((prev) => ({
+        ...prev,
+        imageUrl,
+      }));
+    } catch (err) {
+      alert("이미지 업로드 실패: " + (err.message || err));
+      return;
+    }
+  };
+
+  // 종 목록
   useEffect(() => {
     (async () => {
       try {
@@ -48,17 +124,6 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
       }
     })();
   }, [listSpecies, listPotSize]);
-
-  // 종 목록 로드
-  useEffect(() => {
-    (async () => {
-      try {
-        await listSpecies();
-      } catch (e) {
-        console.error("[PlantRegister] listSpecies error:", e);
-      }
-    })();
-  }, [listSpecies]);
 
   // 이름→ID 인덱스
   const speciesIndex = useMemo(
@@ -273,42 +338,53 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
           <div className="flex flex-col gap-4">
             {/* 사진 업로드 영역 */}
             <div className="relative border border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-gray-400">
+              {/* 숨겨진 input은 항상 존재하도록 둡니다 (파일 재선택 가능) */}
+              <input
+                id="imageUrl"
+                name="imageUrl"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+
               {!form.imagePreview ? (
                 <label
                   htmlFor="imageUrl"
-                  className="flex flex-col items-center justify-center text-gray-500 cursor-pointer h-25"
+                  className="flex flex-col items-center justify-center text-gray-500 cursor-pointer h-48"
                 >
-                  <input
-                    id="imageUrl"
-                    name="imageUrl"
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
                   <div className="text-sm">식물 초기 사진 선택</div>
                   <div className="text-xs mt-1 text-gray-400">
-                    (미리보기 없음)
+                    (클릭하여 선택)
                   </div>
                 </label>
               ) : (
-                <div className="relative inline-block">
+                <div className="relative">
                   <img
                     src={form.imagePreview}
                     alt="미리보기"
-                    className="w-full h-48 object-contain rounded-lg border border-gray-200 bg-gray-50"
+                    className="w-full h-48 object-cover rounded-lg border border-gray-200 bg-gray-50"
                   />
+
+                  {/* 삭제 아이콘 — 클릭 시 파일과 미리보기 초기화 */}
                   <PiTrashBold
                     size={26}
                     title="삭제"
-                    onClick={handleImageDelete}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleImageDelete();
+                    }}
                     className="absolute top-2 right-2 cursor-pointer text-red-500 bg-white rounded-full p-1 shadow hover:bg-red-100"
                   />
+
+                  {/* 선택된 파일 이름 (미리보기 아래에 표시, 길면 ... 처리) */}
+                  <div className="mt-2 text-sm text-gray-600 truncate">
+                    선택됨: {form.imageFile?.name || "이름을 불러올 수 없음"}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* 실내/실외 + 위치 입력 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
               <div className="flex items-center gap-6 justify-center">
                 <label
@@ -408,7 +484,7 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
             </div>
             <div
               className="flex items-center gap-2 rounded-xl bg-lime-600 text-white px-5 py-2 text-sm 
-                   hover:shadow-md hover:scale-[1.01] transition-all"
+       hover:shadow-md hover:scale-[1.01] transition-all"
             >
               <input
                 id="qr"
@@ -418,7 +494,7 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, qr: e.target.checked }))
                 }
-                className="h-4 w-4 text-green-600"
+                className="h-4 w-4 accent-lime-500"
               />
               <label htmlFor="qr" className="text-sm text-gray-700">
                 QR 코드 생성
