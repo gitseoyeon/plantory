@@ -20,14 +20,14 @@ export default function Home() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
 
-  // ✅ 일지 목록 불러오기
+  // ✅ 유저 식물 목록 불러오기
   useEffect(() => {
     const fetchPlants = async () => {
       try {
         const data = await userplantService.getAllPlants(0, 10);
         setFeeds(data.content || []);
       } catch (err) {
-        console.error("❌ 일지 목록 불러오기 실패:", err);
+        console.error("❌ 사용자 식물 목록 불러오기 실패:", err);
       } finally {
         setLoading(false);
       }
@@ -100,7 +100,7 @@ export default function Home() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800">
-                  🌿 전체 성장 일지 미리보기
+                  🌿 사용자 식물 미리보기
                 </h2>
                 <button
                   onClick={() => navigate("/growth")}
