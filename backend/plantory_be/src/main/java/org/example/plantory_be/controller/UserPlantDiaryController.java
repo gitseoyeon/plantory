@@ -32,7 +32,7 @@ public class UserPlantDiaryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<Page<UserPlantDiaryResponse>> listPlantDiary(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
