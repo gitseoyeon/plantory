@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
@@ -27,4 +28,22 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     long countByUserIdAndNotDeleted(@Param("userId") Long userId);
 
     boolean existsByIdAndDeletedFalse(Long id);
+
+    @Query(value = """
+                SELECT p.*
+                FROM posts p
+                WHERE p.id = (
+                    SELECT p2.id
+                    FROM posts p2
+                    LEFT JOIN likes l2
+                        ON l2.target_id = p2.id
+                        AND l2.target_type = 'POST'
+                    WHERE p2.category = p.category
+                      AND p2.is_deleted = false
+                    GROUP BY p2.id
+                    ORDER BY COUNT(l2.id) DESC, p2.created_at DESC
+                    LIMIT 1
+                )
+            """, nativeQuery = true)
+    List<Post> findTop1PostByEachCategory();
 }
