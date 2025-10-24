@@ -6,7 +6,7 @@ import PlantRegister from "./plantRegister";
 import PlantList from "../components/userplant/PlantList";
 import userplantService from "../services/userplant";
 import AllPlantList from "../components/feed/AllPlantList";
-import Sidebar from "../components/sidebar";
+import Sidebar from "../components/Sidebar";
 import logoAnimal from "../assets/logo_animal.png";
 import { postService } from "../services/post";
 
