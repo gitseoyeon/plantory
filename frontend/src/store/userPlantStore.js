@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import userPlantService from "../services/userPlant";
+import userPlantService from "../services/userplant";
 
 const useUserPlantStore = create((set, get) => ({
   plants: [],
