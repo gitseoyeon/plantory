@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -42,6 +43,12 @@ public class PostController {
         Pageable pageable = PageRequest.of(page, size);
         Page<PostResponse> posts = postService.getAllPosts(pageable);
         return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<PostResponse>> getTopPostsByEachCategory() {
+        List<PostResponse> popularPosts = postService.getTopPostsByEachCategory();
+        return ResponseEntity.ok(popularPosts);
     }
 
     @GetMapping("/{postId}")

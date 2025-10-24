@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -84,6 +86,27 @@ public class PostService {
         authenticationService.getCurrentUser();
         return postRepository.countByUserIdAndNotDeleted(userId);
     }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getTopPostsByEachCategory() {
+        User currentUser = authenticationService.getCurrentUser();
+        List<Post> topPosts = postRepository.findTop1PostByEachCategory();
+
+        return topPosts.stream().map(post -> {
+            PostResponse response = PostResponse.fromEntity(post);
+
+            Long likeCount = likeRepository.countByTargetTypeAndId(post.getId(), LikeTargetType.POST);
+            boolean isLiked = likeRepository.existsByUserAndTargetIdAndTargetType(currentUser, post.getId(), LikeTargetType.POST);
+            Long commentCount = commentRepository.countByPostId(post.getId());
+
+            response.setLikeCount(likeCount);
+            response.setLiked(isLiked);
+            response.setCommentCount(commentCount);
+
+            return response;
+        }).toList();
+    }
+
 
     public PostResponse updatePost(Long postId, PostRequest request) {
         User currentUser = authenticationService.getCurrentUser();
