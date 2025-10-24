@@ -156,7 +156,7 @@ export default function Sidebar() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-800 truncate">
-                  {p.koreanName || "이름 없음"}
+                  {p.commonName || "이름 없음"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
                   {p.scientificName || "학명 없음"}
