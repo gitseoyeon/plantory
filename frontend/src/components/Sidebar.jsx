@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { getAllPlants } from "../services/plant";
 import {
   getNotifications,
@@ -18,6 +19,7 @@ export default function Sidebar() {
   const userId = storedUser ? JSON.parse(storedUser).id : null;
   const stompClient = useRef(null);
   const connected = useRef(false);
+  const navigate = useNavigate();
 
   // 🌱 식물 & 알림 초기 로드
   useEffect(() => {
@@ -139,9 +141,10 @@ export default function Sidebar() {
         <h3 className="font-semibold text-lg mb-3">📌 식물 정보</h3>
         <ul className="space-y-3">
           {plants.map((p) => (
-            <li
+            <Link
               key={p.id}
-              className="flex items-center space-x-3 border-b border-gray-100 pb-3 last:border-0"
+              to={`/dictionary/${p.id}`}
+              className="flex items-center space-x-3 border-b border-gray-100 pb-3 last:border-0 hover:bg-gray-50 transition rounded-lg p-1"
             >
               <div className="w-14 h-14 rounded-lg overflow-hidden bg-green-50">
                 {p.imageUrl ? (
@@ -165,7 +168,7 @@ export default function Sidebar() {
                   {p.origin ? `원산지: ${p.origin}` : ""}
                 </p>
               </div>
-            </li>
+            </Link>
           ))}
         </ul>
       </section>
@@ -204,7 +207,12 @@ export default function Sidebar() {
                   {/* 내용 */}
                   <div
                     className="flex-1 cursor-pointer"
-                    onClick={() => handleRead(n.id)}
+                    onClick={() => {
+                      handleRead(n.id);
+                      if (n.targetId) {
+                        navigate(`/posts/${n.targetId}`);
+                      }
+                    }}
                   >
                     <span className="truncate flex items-center gap-1">
                       {isComment && <span className="text-blue-400">💬</span>}

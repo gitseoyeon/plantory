@@ -109,15 +109,15 @@ export default function MyPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-green-50 py-12 px-6">
+    <div className="min-h-screen bg-green-50 py-12 px-6">
       <motion.div
-        className="mx-8 w-auto flex justify-between bg-white rounded-2xl shadow-md p-8"
+        className="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         {/* 상단 프로필 */}
-        <div className="w-full flex flex-col items-center mb-8 relative">
+        <div className="flex flex-col items-center mb-8 relative">
           {previewImage ? (
             <motion.img
               src={previewImage}
@@ -169,7 +169,7 @@ export default function MyPage() {
         ) : (
           <>
             {/* 정보 카드 */}
-            <div className="flex flex-col min-w-[70%] gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <InfoCard title="소개" content={user.bio} />
               <InfoCard title="경험" content={user.experience} />
               <InfoCard title="관심사" content={user.interest} />
@@ -182,15 +182,15 @@ export default function MyPage() {
                     : null
                 }
               />
+            </div>
 
-              <div className="flex justify-center mt-10">
-                <button
-                  onClick={handleEditToggle}
-                  className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-all"
-                >
-                  프로필 수정하기
-                </button>
-              </div>
+            <div className="flex justify-center mt-10">
+              <button
+                onClick={handleEditToggle}
+                className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-all"
+              >
+                프로필 수정하기
+              </button>
             </div>
           </>
         )}
@@ -500,7 +500,7 @@ const InfoCard = ({ title, content }) => {
       "bg-green-100 text-green-700 border-green-300 hover:bg-green-200";
     return (
       <motion.div
-        className="min-w-[50%] bg-green-50 rounded-xl p-5 shadow-sm border border-green-100"
+        className="bg-green-50 rounded-xl p-5 shadow-sm border border-green-100"
         whileHover={{ scale: 1.02 }}
         transition={{ duration: 0.2 }}
       >
