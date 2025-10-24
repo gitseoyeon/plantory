@@ -211,6 +211,10 @@ const EditProfileForm = ({ user, onUpdateSuccess, onCancel }) => {
     profileImageUrl: user.profileImageUrl || "",
   });
 
+  const [nicknameChecked, setNicknameChecked] = useState(false);
+  const [nicknameMessage, setNicknameMessage] = useState("");
+  const [originalNickname] = useState(user.nickname || "");
+
   useEffect(() => {
     // 외부에서 이미지 변경 시 formData.profileImageUrl 업데이트 가능하도록 전역 함수 등록
     window.updateFormProfileImage = (url) => {
@@ -225,10 +229,43 @@ const EditProfileForm = ({ user, onUpdateSuccess, onCancel }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "nickname") {
+      setNicknameChecked(false);
+      setNicknameMessage("");
+    }
+  };
+
+  const handleNicknameCheck = async () => {
+    if (!formData.nickname.trim()) {
+      setNicknameMessage("닉네임을 입력하세요.");
+      setNicknameChecked(false);
+      return;
+    }
+    try {
+      const res = await api.get(
+        `/api/auth/check?nickname=${encodeURIComponent(formData.nickname)}`
+      );
+      if (res.data) {
+        setNicknameMessage("이미 사용 중인 닉네임입니다.");
+        setNicknameChecked(false);
+      } else {
+        setNicknameMessage("사용 가능한 닉네임입니다.");
+        setNicknameChecked(true);
+      }
+    } catch (err) {
+      console.error("닉네임 중복 확인 실패:", err);
+      setNicknameMessage("닉네임 확인 중 오류가 발생했습니다.");
+      setNicknameChecked(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const nicknameUnchanged = formData.nickname === originalNickname;
+    if (!nicknameUnchanged && !nicknameChecked) {
+      alert("닉네임 중복 확인을 해주세요.");
+      return;
+    }
     try {
       const res = await api.patch("/api/users/profile/me", formData);
       if (res.status === 200) {
@@ -255,8 +292,8 @@ const EditProfileForm = ({ user, onUpdateSuccess, onCancel }) => {
           type="text"
           name="username"
           value={formData.username}
-          disabled
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-300 outline-none"
         />
       </div>
 
@@ -277,13 +314,35 @@ const EditProfileForm = ({ user, onUpdateSuccess, onCancel }) => {
         <label className="block text-green-700 font-semibold mb-1">
           닉네임
         </label>
-        <input
-          type="text"
-          name="nickname"
-          value={formData.nickname}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-300 outline-none"
-        />
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            name="nickname"
+            value={formData.nickname}
+            onChange={handleChange}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-300 outline-none"
+          />
+          <button
+            type="button"
+            onClick={handleNicknameCheck}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+          >
+            중복 확인
+          </button>
+        </div>
+        {nicknameMessage && (
+          <p
+            className={`text-sm mt-2 ${
+              nicknameChecked
+                ? "text-green-600"
+                : nicknameMessage.includes("사용 중")
+                ? "text-red-500"
+                : "text-gray-500"
+            }`}
+          >
+            {nicknameMessage}
+          </p>
+        )}
       </div>
 
       <div>
@@ -348,7 +407,12 @@ const EditProfileForm = ({ user, onUpdateSuccess, onCancel }) => {
         </button>
         <button
           type="submit"
-          className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+          disabled={!nicknameChecked && formData.nickname !== originalNickname}
+          className={`px-6 py-2 rounded-lg transition ${
+            nicknameChecked || formData.nickname === originalNickname
+              ? "bg-green-500 text-white hover:bg-green-600"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
         >
           저장
         </button>

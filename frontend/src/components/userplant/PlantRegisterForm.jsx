@@ -6,6 +6,7 @@ import {
   buildCreatePlantPayload,
 } from "../../utils/plant";
 import { filterByKorean } from "../../utils/korean";
+import { PiTrashBold } from "react-icons/pi";
 
 const PlantRegisterForm = ({ onClose, onSuccess }) => {
   const today = new Date().toISOString().split("T")[0];
@@ -123,6 +124,30 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
     } else if (e.key === "Escape") {
       setOpenSuggest(false);
     }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm((prev) => ({
+          ...prev,
+          imageFile: file,
+          imagePreview: reader.result,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageDelete = () => {
+    setForm((prev) => ({
+      ...prev,
+      imageFile: null,
+      imagePreview: "",
+    }));
+    document.getElementById("imageUrl").value = ""; // input 초기화
   };
 
   const onSubmit = async (e) => {
@@ -244,38 +269,51 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
           <h2 className="text-lg font-semibold text-gray-800">그 외 정보</h2>
         </div>
 
-        <div className="p-5 space-y-6">
-          <div>
-            <label
-              className="block w-full rounded-xl border border-dashed border-gray-300 p- text-center 
-                   hover:border-gray-400"
-            >
-              <input
-                id="imageUrl"
-                name="imageUrl"
-                className="hidden"
-                accept="image/*"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) setForm((prev) => ({ ...prev, imageUrl: f.name }));
-                }}
-              />
-              <div className="text-gray-500">
-                <div>식물 초기 사진(준비중)</div>
-                <div className="text-xs mt-1">PNG, JPG (최대 5MB)</div>
-                {form.imageUrl && (
-                  <div className="text-xs mt-2">선택됨: {form.imageUrl}</div>
-                )}
-              </div>
-            </label>
-          </div>
+        <div className="p-5 space-y-4">
+          <div className="flex flex-col gap-4">
+            {/* 사진 업로드 영역 */}
+            <div className="relative border border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-gray-400">
+              {!form.imagePreview ? (
+                <label
+                  htmlFor="imageUrl"
+                  className="flex flex-col items-center justify-center text-gray-500 cursor-pointer h-25"
+                >
+                  <input
+                    id="imageUrl"
+                    name="imageUrl"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                  <div className="text-sm">식물 초기 사진 선택</div>
+                  <div className="text-xs mt-1 text-gray-400">
+                    (미리보기 없음)
+                  </div>
+                </label>
+              ) : (
+                <div className="relative inline-block">
+                  <img
+                    src={form.imagePreview}
+                    alt="미리보기"
+                    className="w-full h-48 object-contain rounded-lg border border-gray-200 bg-gray-50"
+                  />
+                  <PiTrashBold
+                    size={26}
+                    title="삭제"
+                    onClick={handleImageDelete}
+                    className="absolute top-2 right-2 cursor-pointer text-red-500 bg-white rounded-full p-1 shadow hover:bg-red-100"
+                  />
+                </div>
+              )}
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <div className="flex items-center gap-6">
+            {/* 실내/실외 + 위치 입력 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+              <div className="flex items-center gap-6 justify-center">
                 <label
                   htmlFor="indoor-true"
-                  className="inline-flex items-center gap-2"
+                  className="inline-flex items-center gap-2 cursor-pointer"
                 >
                   <input
                     id="indoor-true"
@@ -288,9 +326,10 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
                   />
                   <span>실내</span>
                 </label>
+
                 <label
                   htmlFor="indoor-false"
-                  className="inline-flex items-center gap-2"
+                  className="inline-flex items-center gap-2 cursor-pointer"
                 >
                   <input
                     id="indoor-false"
@@ -304,17 +343,17 @@ const PlantRegisterForm = ({ onClose, onSuccess }) => {
                   <span>실외</span>
                 </label>
               </div>
-            </div>
 
-            <input
-              id="location"
-              name="location"
-              value={form.location}
-              onChange={onChange}
-              type="text"
-              className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
-              placeholder=" 구체적 위치 (거실, 베란다 등)"
-            />
+              <input
+                id="location"
+                name="location"
+                value={form.location}
+                onChange={onChange}
+                type="text"
+                className="w-full rounded-xl border border-gray-300 p-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400"
+                placeholder="구체적 위치 (거실, 베란다 등)"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import InputField from "../components/ui/Input";
 import useAuthStore from "../store/authStore";
+import axios from "axios";
 
 export default function Register() {
   const { register, loading, error } = useAuthStore();
@@ -14,9 +15,40 @@ export default function Register() {
     profileImageUrl: "",
   });
 
+  const [nicknameChecked, setNicknameChecked] = useState(false);
+  const [nicknameMessage, setNicknameMessage] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (name === "nickname") {
+      setNicknameChecked(false);
+    }
+  };
+
+  const handleNicknameCheck = async () => {
+    if (!formData.nickname) {
+      setNicknameMessage("닉네임을 입력하세요.");
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/auth/check?nickname=${
+          formData.nickname
+        }`
+      );
+      if (response.data === true) {
+        setNicknameMessage("이미 사용 중인 닉네임입니다.");
+        setNicknameChecked(false);
+      } else {
+        setNicknameMessage("사용 가능한 닉네임입니다.");
+        setNicknameChecked(true);
+      }
+    } catch (error) {
+      console.error(error);
+      setNicknameMessage("닉네임 확인 중 오류가 발생했습니다.");
+      setNicknameChecked(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -73,13 +105,37 @@ export default function Register() {
           />
 
           {/* 선택 항목 */}
-          <InputField
-            label="닉네임 (선택)"
-            name="nickname"
-            value={formData.nickname}
-            onChange={handleChange}
-            placeholder="닉네임을 입력하세요"
-          />
+          <div className="relative">
+            <div className="flex items-center">
+              <InputField
+                label="닉네임"
+                name="nickname"
+                value={formData.nickname}
+                onChange={handleChange}
+                placeholder="닉네임을 입력하세요"
+              />
+              <button
+                type="button"
+                onClick={handleNicknameCheck}
+                className="ml-2 px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 text-sm font-medium"
+              >
+                중복 확인
+              </button>
+            </div>
+            {nicknameMessage && (
+              <p
+                className={`text-sm -mt-2 ${
+                  nicknameChecked
+                    ? "text-green-600"
+                    : nicknameMessage.includes("사용 중")
+                    ? "text-red-500"
+                    : "text-gray-500"
+                }`}
+              >
+                {nicknameMessage}
+              </p>
+            )}
+          </div>
           <InputField
             label="프로필 이미지 URL (선택)"
             name="profileImageUrl"
@@ -90,7 +146,11 @@ export default function Register() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={
+              loading ||
+              (!formData.nickname && !nicknameChecked) ||
+              (formData.nickname !== "" && !nicknameChecked)
+            }
             className="w-full bg-green-500 text-white font-semibold py-2 rounded-lg hover:bg-green-600 transition-all mt-4 disabled:opacity-60"
           >
             {loading ? "가입 중..." : "회원가입"}
