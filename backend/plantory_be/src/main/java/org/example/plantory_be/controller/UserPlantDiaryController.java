@@ -2,6 +2,7 @@ package org.example.plantory_be.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.plantory_be.dto.request.UserPlantDiaryRequest;
+import org.example.plantory_be.dto.response.UserPlantDiaryPhotoResponse;
 import org.example.plantory_be.dto.response.UserPlantDiaryResponse;
 import org.example.plantory_be.service.UserPlantDiaryImageService;
 import org.example.plantory_be.service.UserPlantDiaryService;
@@ -32,6 +33,19 @@ public class UserPlantDiaryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
+    @GetMapping("/photos")
+    public ResponseEntity<Page<UserPlantDiaryPhotoResponse>> listPlantDiaryPhoto(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserPlantDiaryPhotoResponse> userPlants = diaryService.listPlantsDiaryPhoto(pageable);
+        return ResponseEntity.ok(userPlants);
+    }
+
+    //상세보기 > 성장일지목록
     @GetMapping("/all")
     public ResponseEntity<Page<UserPlantDiaryResponse>> listPlantDiary(
             @RequestParam(defaultValue = "0") int page,

@@ -12,13 +12,14 @@ public interface UserPlantDiaryRepository extends JpaRepository<UserPlantDiary, 
     Page<UserPlantDiary> findByOrderByCreatedAtDesc(Pageable pageable);
 
     @Query("""
-        SELECT new org.example.plantory_be.dto.UserPlantDiaryPhotoResponse(
+        SELECT new org.example.plantory_be.dto.response.UserPlantDiaryPhotoResponse(
             d.userPlant.id,
+            d.id, 
             p.imageUrl,
-            d.memo
+            p.memo
         )
         FROM UserPlantPhoto p
-        LEFT JOIN p.diary d
+        LEFT JOIN p.userPlantDiary d
         ORDER BY p.id DESC
     """)
     Page<UserPlantDiaryPhotoResponse> findDiaryPhotos(Pageable pageable);
