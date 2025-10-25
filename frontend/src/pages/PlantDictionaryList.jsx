@@ -11,7 +11,6 @@ const PlantDictionaryList = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ URL 파라미터에서 검색어 복원
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const savedQuery = params.get("query") || "";
@@ -23,6 +22,8 @@ const PlantDictionaryList = () => {
         const data = savedQuery
           ? await searchPlants({ query: savedQuery })
           : await getAllPlants();
+
+        console.log("불러온 식물 데이터:", data);
         setPlants(data);
         setIsSearching(!!savedQuery);
       } catch (error) {
@@ -32,23 +33,25 @@ const PlantDictionaryList = () => {
       }
     };
 
-    fetchData();
-  }, [location.search]);
+  
+    if (location.pathname.includes("/dictionary")) {
+      fetchData();
+    }
+  }, [location.search, location.pathname]);
 
-
+  
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!query.trim()) {
-      navigate("/dictionary");
+      navigate("/dictionary/list");
     } else {
-      navigate(`/dictionary?query=${encodeURIComponent(query)}`);
+      navigate(`/dictionary/list?query=${encodeURIComponent(query)}`);
     }
   };
 
-  // ✅ 전체보기
   const handleShowAll = () => {
     setQuery("");
-    navigate("/dictionary");
+    navigate("/dictionary/list");
   };
 
   if (loading) return <p className="p-6 text-gray-600">로딩 중...</p>;
