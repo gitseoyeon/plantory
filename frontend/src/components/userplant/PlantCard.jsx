@@ -9,7 +9,6 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
   if (!plant) return null;
   const { user, isAuthenticated } = useAuthStore();
   const deletePlant = useUserPlantStore((s) => s.deletePlant);
-  const loading = useUserPlantStore((s) => s.loading);
 
   const {
     id,
@@ -17,9 +16,6 @@ const PlantCard = ({ plant, onEdit, onDelete }) => {
     petName,
     acquiredDate,
     imageUrl,
-    indoor,
-    store,
-    price,
     speciesName,
     location,
     potSize,

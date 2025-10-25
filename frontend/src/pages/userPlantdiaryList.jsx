@@ -11,7 +11,7 @@ const PlantDiaryList = () => {
   const [page, setPage] = useState(0);
   const didInit = useRef(false);
 
-  const randomHeights = [250, 300, 350, 400, 450, 500, 550, 600, 550, 600];
+  const randomHeights = [250, 600, 650, 800, 450, 500, 550, 600, 450, 600];
 
   // 데이터 로드 + 변환
   const mapToMasonryItems = (list) =>
