@@ -29,7 +29,7 @@ export default function Navbar() {
             </Link>
           </li>
           <li>
-            <Link to="/journal" className="hover:text-green-600">
+            <Link to="/diary" className="hover:text-green-600">
               성장일지
             </Link>
           </li>

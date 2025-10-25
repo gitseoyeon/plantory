@@ -16,6 +16,11 @@ const userPlantService = {
     return res.data;
   },
 
+  getPlantById: async (plantId) => {
+    const res = await api.get(`/api/plant/${plantId}`);
+    return res.data;
+  },
+
   updatePlant: async (plantId, data) => {
     const res = await api.put(`/api/plant/${plantId}`, data);
     return res.data;

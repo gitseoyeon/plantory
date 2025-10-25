@@ -3,6 +3,7 @@ package org.example.plantory_be.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.plantory_be.dto.request.UserPlantDiaryRequest;
+import org.example.plantory_be.dto.response.UserPlantDiaryPhotoResponse;
 import org.example.plantory_be.dto.response.UserPlantDiaryResponse;
 import org.example.plantory_be.entity.User;
 import org.example.plantory_be.entity.UserPlant;
@@ -64,6 +65,24 @@ public class UserPlantDiaryService {
 
         UserPlantDiary saved = diaryRepository.save(diary);
         return UserPlantDiaryResponse.fromEntity(saved);
+    }
+
+    //갤러리형
+    @Transactional(readOnly = true)
+    public Page<UserPlantDiaryPhotoResponse> listPlantsDiaryPhoto(Pageable pageable) {
+        authenticationService.getCurrentUser();
+        return diaryRepository.findDiaryPhotos(pageable);
+    }
+
+
+    //목록형
+    @Transactional(readOnly = true)
+    public Page<UserPlantDiaryResponse> listPlantsDiary(Pageable pageable) {
+
+        authenticationService.getCurrentUser();
+
+        Page<UserPlantDiary> page = diaryRepository.findByOrderByCreatedAtDesc(pageable);
+        return page.map(UserPlantDiaryResponse::fromEntity);
     }
 
     @Transactional(readOnly = true)

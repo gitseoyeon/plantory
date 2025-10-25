@@ -98,6 +98,7 @@ public class UserPlantController {
         return ResponseEntity.ok(potSizes);
     }
 
+    //식물 초기 사진
     @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> uploadPlantPhoto(
             @RequestParam("file") MultipartFile file

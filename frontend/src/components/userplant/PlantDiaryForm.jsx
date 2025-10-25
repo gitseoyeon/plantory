@@ -142,9 +142,7 @@ const PlantDiaryForm = ({ onClose, plantId }) => {
     <form onSubmit={onSubmit} className="space-y-8">
       <section className="bg-white rounded-2xl border border-gray-200 shadow-sm">
         <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">
-            상세 정보 #{plantId}
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-800">상세 정보</h2>
         </div>
 
         <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">

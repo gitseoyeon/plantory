@@ -61,6 +61,8 @@ public class UserPlantService {
         } catch (Exception e) { // 사용자에게는 굳이 실패 알릴 필요 없을 수도 있음
             log.warn("QR 생성 실패 - 식물 ID: {}", saved.getId(), e);
         }
+
+
         return UserPlantResponse.fromEntity(saved);
     }
 
