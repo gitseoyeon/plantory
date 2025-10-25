@@ -1,27 +1,80 @@
+import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import useUserDiaryStore from "../store/userDiaryStore";
 import Masonry from "../components/userplant/Masonry";
 
+const PAGE_SIZE = 10;
+
 const PlantDiaryList = () => {
-  const items = [
-    {
-      id: "1",
-      img: "https://picsum.photos/id/1015/600/900?grayscale",
-      url: "https://example.com/one",
-      height: 400,
-    },
-    {
-      id: "2",
-      img: "https://picsum.photos/id/1011/600/750?grayscale",
-      url: "https://example.com/two",
-      height: 250,
-    },
-    {
-      id: "3",
-      img: "https://picsum.photos/id/1020/600/800?grayscale",
-      url: "https://example.com/three",
-      height: 600,
-    },
-    // ... more items
-  ];
+  const { listAllDiaryPhotos, loading, error, pagination } =
+    useUserDiaryStore();
+  const [items, setItems] = useState([]);
+  const [page, setPage] = useState(0);
+  const didInit = useRef(false);
+  const navigate = useNavigate();
+
+  const handleClick = (plantId, plant) => {
+    navigate(`/plant/${plantId}`, {
+      state: { plant }, // 필요 시 데이터 같이 전달
+    });
+  };
+
+  const randomHeights = [250, 300, 350, 400, 450, 500, 550, 600, 550, 600];
+
+  // 데이터 로드 + 변환
+  const mapToMasonryItems = (list) =>
+    (list ?? []).map((item, idx) => ({
+      id: item.id,
+      plantId: item.plantId,
+      img: `${import.meta.env.VITE_API_URL}${item.imageUrl}`,
+      url: `/plant/${item.plantId}`,
+      height: randomHeights[idx % randomHeights.length],
+    }));
+
+  useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
+
+    (async () => {
+      try {
+        const first = await listAllDiaryPhotos(0, PAGE_SIZE);
+        const mapped = mapToMasonryItems(first.content);
+        setItems(mapped);
+        //setItems(first.content ?? []);
+        setPage(0);
+      } catch (e) {
+        console.error("초기 다이어리 로드 실패:", e);
+      }
+    })();
+  }, [listAllDiaryPhotos]);
+
+  console.log("[Masonry]", items);
+
+  // 더 불러오기
+  const handleMore = async () => {
+    const nextPage = page + 1;
+    try {
+      const next = await listAllDiaryPhotos(nextPage, PAGE_SIZE);
+      const mapped = mapToMasonryItems(next.content);
+
+      //const nextItems = next.content ?? [];
+      //if (nextItems.length > 0) {
+      if (mapped.length > 0) {
+        setItems((prev) => {
+          const map = new Map(prev.map((p) => [p.id, p]));
+          //for (const n of nextItems) map.set(n.id, n);
+          for (const n of mapped) map.set(n.id, n);
+          return Array.from(map.values());
+        });
+        setPage(nextPage);
+      }
+    } catch (e) {
+      console.error("다음 페이지 로드 실패:", e);
+    }
+  };
+
+  const totalPages = pagination?.totalPages ?? Infinity;
+  const hasMore = totalPages > page + 1;
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -29,17 +82,67 @@ const PlantDiaryList = () => {
         🌻 <span className="text-green-700">성장일지</span>
       </h1>
 
-      <Masonry
-        items={items}
-        ease="power3.out"
-        duration={0.6}
-        stagger={0.05}
-        animateFrom="bottom"
-        scaleOnHover={true}
-        hoverScale={0.95}
-        blurToFocus={true}
-        colorShiftOnHover={false}
-      />
+      {error && (
+        <div className="mb-4 p-4 text-sm text-red-600 bg-white rounded-xl border border-gray-200">
+          에러: {String(error)}
+        </div>
+      )}
+
+      {loading && items.length === 0 && (
+        <div className="mb-4 text-center text-gray-500 py-8">
+          불러오는 중...
+        </div>
+      )}
+
+      {!loading && items.length === 0 && (
+        <div className="mb-4 p-6 text-sm text-gray-500 bg-white rounded-xl border border-gray-200">
+          아직 등록된 일지가 없습니다.
+        </div>
+      )}
+
+      {/* Masonry 컴포넌트가 있으면 그걸 쓰고, 없으면 간단히 map 렌더
+      {items.length > 0 && ( */}
+
+      <div>
+        {Masonry ? (
+          <Masonry items={items} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {items.map((it) => (
+              <div
+                key={it.id}
+                onClick={() => alert(it.plantId)}
+                className="bg-white p-4 rounded-xl border"
+              >
+                <div className="text-sm text-gray-700">
+                  {it.title || it.memo || "내용"}
+                </div>
+                {it.imageUrl && (
+                  <img
+                    src={it.imageUrl}
+                    alt={it.title || "diary"}
+                    className="mt-2 w-full h-40 object-cover rounded-md"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* )} */}
+
+      {/* 더보기 버튼 
+      {!loading && !error && items.length > 0 && hasMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={handleMore}
+            className="w-full sm:w-[calc(50%+0.75rem)] px-4 py-3 text-sm font-semibold rounded-xl border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
+          >
+            더 보기
+          </button>
+        </div>
+      )}*/}
     </div>
   );
 };

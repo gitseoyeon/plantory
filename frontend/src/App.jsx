@@ -19,7 +19,7 @@ import UserProfile from "./pages/userProfile";
 // 식물 관리
 import PlantDetail from "./pages/userPlantDetail";
 import UserPlantList from "./pages/userPlantList";
-import UserPlantDiaryList from "./pages/userPlantdiaryList";
+import UserPlantDiaryList from "./pages/userPlantDiaryList";
 
 //식물 백과사전
 import PlantDictionaryList from "./pages/PlantDictionaryList";
