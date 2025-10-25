@@ -62,4 +62,10 @@ export const postService = {
     const res = await api.post(`/api/posts/${postId}/like`);
     return res.data;
   },
+
+  // 카테고리별 인기 게시글 조회
+  async getPopularPosts() {
+    const res = await api.get("/api/posts/popular");
+    return res.data;
+  },
 };
