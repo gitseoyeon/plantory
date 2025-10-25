@@ -6,6 +6,7 @@ import CommentList from "../comment/CommentList";
 import { postService } from "../../services/post";
 import CommunityAuthorProfile from "../ui/CommunityAuthorProfile";
 import useAuthStore from "../../store/authStore"; // ✅ 로그인 사용자 확인용
+import PostCommentCountButton from "../comment/PostCommentCountButton";
 
 export default function PostDetail() {
   const { postId } = useParams();
@@ -110,7 +111,7 @@ export default function PostDetail() {
       </div>
 
       {/* 좋아요 */}
-      <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-5 text-gray-500">
+      <div className="px-6 py-4 border-t border-gray-100 flex justify-center  items-center gap-5 text-gray-500">
         <PostLikeButton post={post} />
       </div>
 

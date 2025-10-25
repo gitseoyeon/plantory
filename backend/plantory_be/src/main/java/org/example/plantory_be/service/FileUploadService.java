@@ -45,7 +45,7 @@ public class FileUploadService {
         }
     }
 
-    /** ✅ 로컬 파일 삭제 */
+    /** ✅ 파일 삭제 */
     public void deleteFile(String imageUrl) {
         try {
             if (imageUrl == null || imageUrl.isBlank()) return;

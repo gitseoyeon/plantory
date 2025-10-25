@@ -6,11 +6,11 @@ import CommunityAuthorProfile from "../ui/CommunityAuthorProfile";
 const PostCard = ({ post }) => (
   <Link
     to={`/posts/${post.id}`}
-    className="block bg-white shadow-md rounded-xl p-5 hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
+    className="group block bg-white shadow-md rounded-xl p-5 hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
   >
     {/* ✅ 제목 + 내용 */}
     <div>
-      <h3 className="text-xl font-semibold text-gray-800 hover:text-green-600 transition">
+      <h3 className="text-xl font-semibold text-gray-800 transition-colors duration-200 group-hover:text-green-600">
         {post.title}
       </h3>
       <p className="text-gray-600 mt-2 line-clamp-2">{post.content}</p>
