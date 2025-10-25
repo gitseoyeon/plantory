@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { useNavigate } from "react-router-dom";
 
 const useMedia = (queries, values, defaultValue) => {
   const get = () =>
@@ -74,6 +75,7 @@ const Masonry = ({
 
   const [containerRef, { width }] = useMeasure();
   const [imagesReady, setImagesReady] = useState(false);
+  const navigate = useNavigate();
 
   const getInitialPosition = (item) => {
     const containerRect = containerRef.current?.getBoundingClientRect();
@@ -206,7 +208,12 @@ const Masonry = ({
           data-key={item.id}
           className="absolute box-content"
           style={{ willChange: "transform, width, height, opacity" }}
-          onClick={() => window.open(item.url, "_blank", "noopener")}
+          //onClick={() => window.open(item.url, "_blank", "noopener")}
+          onClick={() =>
+            navigate(item.url, {
+              state: { plant: item.plant, plantId: item.plantId },
+            })
+          }
           onMouseEnter={(e) => handleMouseEnter(item.id, e.currentTarget)}
           onMouseLeave={(e) => handleMouseLeave(item.id, e.currentTarget)}
         >

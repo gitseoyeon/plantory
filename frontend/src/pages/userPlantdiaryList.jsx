@@ -1,7 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
 import useUserDiaryStore from "../store/userDiaryStore";
-import Masonry from "../components/userplant/Masonry";
+import Masonry from "../components/userplant/Masonry"; // 있으면 사용
 
 const PAGE_SIZE = 10;
 
@@ -11,13 +10,6 @@ const PlantDiaryList = () => {
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(0);
   const didInit = useRef(false);
-  const navigate = useNavigate();
-
-  const handleClick = (plantId, plant) => {
-    navigate(`/plant/${plantId}`, {
-      state: { plant }, // 필요 시 데이터 같이 전달
-    });
-  };
 
   const randomHeights = [250, 300, 350, 400, 450, 500, 550, 600, 550, 600];
 
@@ -26,7 +18,7 @@ const PlantDiaryList = () => {
     (list ?? []).map((item, idx) => ({
       id: item.id,
       plantId: item.plantId,
-      img: `${import.meta.env.VITE_API_URL}${item.imageUrl}`,
+      img: `${import.meta.env.VITE_API_URL}${item.imageUrl}`, // imageUrl → img
       url: `/plant/${item.plantId}`,
       height: randomHeights[idx % randomHeights.length],
     }));
@@ -109,11 +101,7 @@ const PlantDiaryList = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {items.map((it) => (
-              <div
-                key={it.id}
-                onClick={() => alert(it.plantId)}
-                className="bg-white p-4 rounded-xl border"
-              >
+              <div key={it.id} className="bg-white p-4 rounded-xl border">
                 <div className="text-sm text-gray-700">
                   {it.title || it.memo || "내용"}
                 </div>
