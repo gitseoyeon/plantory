@@ -100,7 +100,7 @@ public class CommentService {
                 .id(comment.getId())
                 .content(comment.isDeleted() ? "(삭제된 댓글입니다)" : comment.getContent())
                 .createdAt(comment.getCreatedAt())
-                .user(UserDto.fromEntity(currentUser))
+                .user(UserDto.fromEntity(comment.getUser()))
                 .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                 .likeCount(likeCount)
                 .isLiked(isLiked)

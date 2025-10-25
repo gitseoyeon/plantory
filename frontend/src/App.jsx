@@ -63,7 +63,7 @@ function AppLayout() {
           <Route path="/community" element={<Community />} />
           <Route path="/community/write" element={<PostForm />} />
           <Route path="/posts/:postId" element={<PostDetail />} />
-          <Route path="/posts" element={<PostList />} />
+          {/* <Route path="/posts" element={<PostList />} /> */}
           <Route path="/posts/edit/:postId" element={<PostForm />} />
         </Routes>
       </div>

@@ -5,13 +5,16 @@ import { postService } from "../../services/post";
 export default function PostForm() {
   const location = useLocation();
   const navigate = useNavigate();
-  const editingPost = location.state?.post; // ✨ 수정 모드 데이터 받기
+  const editingPost = location.state?.post;
 
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     category: "PROUD",
+    file: null,
+    imageUrl: "",
   });
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const categories = [
@@ -21,19 +24,29 @@ export default function PostForm() {
     { value: "TIP", label: "팁" },
   ];
 
-  // ✅ 수정 모드 시 기존 데이터 채우기
   useEffect(() => {
     if (editingPost) {
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
         title: editingPost.title,
         content: editingPost.content,
         category: editingPost.category || "PROUD",
-      });
+        imageUrl: editingPost.imageUrl || "",
+      }));
+      setPreview(editingPost.imageUrl || null);
     }
   }, [editingPost]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, file }));
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -47,9 +60,9 @@ export default function PostForm() {
         alert("게시글이 수정되었습니다!");
         navigate(`/posts/${editingPost.id}`);
       } else {
-        await postService.createPost(formData);
+        const createdPost = await postService.createPost(formData);
         alert("게시글이 등록되었습니다!");
-        navigate("/posts");
+        navigate(`/posts/${createdPost.id}`);
       }
     } catch (err) {
       console.error(err);
@@ -69,6 +82,7 @@ export default function PostForm() {
           {editingPost ? "게시글 수정" : "새 글 작성"}
         </h2>
 
+        {/* 제목 */}
         <div className="mb-4">
           <label className="block font-semibold mb-1">제목</label>
           <input
@@ -81,6 +95,7 @@ export default function PostForm() {
           />
         </div>
 
+        {/* 카테고리 */}
         <div className="mb-4">
           <label className="block font-semibold mb-1">카테고리</label>
           <select
@@ -97,6 +112,27 @@ export default function PostForm() {
           </select>
         </div>
 
+        {/* ✅ 이미지 업로드 (본문보다 위로 이동) */}
+        <div className="mb-6">
+          <label className="block font-semibold mb-2">이미지 업로드</label>
+          {preview && (
+            <div className="mb-2">
+              <img
+                src={preview}
+                alt="미리보기"
+                className="w-48 h-48 object-cover rounded-lg"
+              />
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+          />
+        </div>
+
+        {/* 내용 */}
         <div className="mb-4">
           <label className="block font-semibold mb-1">내용</label>
           <textarea
