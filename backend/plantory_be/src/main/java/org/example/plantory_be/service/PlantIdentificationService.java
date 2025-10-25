@@ -22,6 +22,7 @@ import java.util.List;
 public class PlantIdentificationService {
 
     private final PlantIdentificationRepository plantIdentificationRepository;
+    private final PapagoTranslationService papagoTranslationService;
 
     @Value("${plantid.api.key}")
     private String apiKey;
@@ -30,156 +31,100 @@ public class PlantIdentificationService {
     private String baseUrl;
 
     /**
-     * ✅ DB에 데이터가 없으면 샘플 이미지로 자동 호출
+     * ✅ 식물 이미지 식별 요청
      */
-    public List<PlantIdentification> getOrFetchAllIdentifications() {
-        List<PlantIdentification> existing = plantIdentificationRepository.findAll();
-        if (!existing.isEmpty()) {
-            log.info("✅ 기존 식별 데이터 존재 — 자동 호출 생략");
-            return existing;
-        }
-
-        log.info("⚙️ DB 비어 있음 — 샘플 이미지로 자동 호출 실행");
-        String sampleUrl = "https://upload.wikimedia.org/wikipedia/commons/3/36/Hydrangea_macrophylla2.jpg";
-        identifyAndSaveFromUrl(sampleUrl);
-
-        return plantIdentificationRepository.findAll();
-    }
-
-    /**
-     * ✅ 업로드된 이미지 파일을 식별하고 결과 + 이미지 저장
-     */
-    public PlantIdentificationResponse identifyAndSave(MultipartFile image) {
+    public PlantIdentificationResponse identifyPlant(MultipartFile file) {
         try {
-            if (image == null || image.isEmpty()) {
-                throw new RuntimeException("이미지 파일이 비어 있습니다.");
-            }
+            // 1️⃣ 이미지 → Base64 인코딩
+            byte[] imageBytes = file.getBytes();
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
 
-            String contentType = image.getContentType();
-            if (contentType == null ||
-                !(contentType.equals("image/jpeg") || contentType.equals("image/png"))) {
-                throw new RuntimeException("지원되지 않는 이미지 형식입니다. JPG 또는 PNG 파일을 업로드하세요.");
-            }
-
-            log.info("업로드된 파일: {} ({} bytes, type={})",
-                image.getOriginalFilename(), image.getSize(), contentType);
-
-            // ✅ 순수 Base64 인코딩 (data: prefix 제거)
-            String base64 = Base64.getEncoder().encodeToString(image.getBytes());
-
-            // ✅ v3 포맷: Plant.id는 'images', 'similar_images', 'classification_level'만 허용
-            JSONObject requestJson = new JSONObject();
-            requestJson.put("images", new JSONArray().put(base64));
-            requestJson.put("similar_images", true);
-            requestJson.put("classification_level", "species");
-
-            log.info("📤 요청 JSON = {}", requestJson.toString(2));
+            // 2️⃣ 요청 JSON 생성
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("images", List.of(base64Image));
+            requestBody.put("similar_images", true);
+            requestBody.put("classification_level", "species");
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Api-Key", apiKey);
 
-            String apiUrl = baseUrl + "/identification";
-            HttpEntity<String> request = new HttpEntity<>(requestJson.toString(), headers);
-
+            HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response =
-                restTemplate.exchange(apiUrl, HttpMethod.POST, request, String.class);
 
-            log.info("응답 코드: {}", response.getStatusCode());
-            log.info("응답 본문: {}", response.getBody());
+            // 3️⃣ API 요청
+            ResponseEntity<String> response = restTemplate.exchange(
+                baseUrl,
+                HttpMethod.POST,
+                entity,
+                String.class
+            );
 
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("식별 API 호출 실패: " + response.getStatusCode());
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                log.error("❌ 식별 요청 실패: {}", response.getStatusCode());
+                return new PlantIdentificationResponse("에러", "-", 0.0, null, null);
             }
 
-            JSONObject json = new JSONObject(response.getBody());
-            JSONArray suggestions = json
-                .optJSONObject("result")
-                .optJSONObject("classification")
-                .optJSONArray("suggestions");
+            JSONObject jsonResponse = new JSONObject(response.getBody());
+            log.info("✅ Plant.id 응답 수신: {}", jsonResponse);
 
-            if (suggestions == null || suggestions.isEmpty()) {
-                throw new RuntimeException("식별 결과를 찾을 수 없습니다.");
+            // 4️⃣ 결과 파싱
+            JSONObject resultObj = jsonResponse.optJSONObject("result");
+            if (resultObj == null)
+                return new PlantIdentificationResponse("에러", "-", 0.0, null, null);
+
+            JSONObject classification = resultObj.optJSONObject("classification");
+            if (classification == null)
+                return new PlantIdentificationResponse("에러", "-", 0.0, null, null);
+
+            JSONArray suggestions = classification.optJSONArray("suggestions");
+            if (suggestions == null || suggestions.isEmpty())
+                return new PlantIdentificationResponse("결과 없음", "-", 0.0, null, null);
+
+            JSONObject firstSuggestion = suggestions.getJSONObject(0);
+
+            // 5️⃣ 정보 추출
+            String englishName = firstSuggestion.optString("name", "Unknown");
+            double confidence = firstSuggestion.optDouble("probability", 0.0) * 100;
+            String koreanName = papagoTranslationService.translateToKorean(englishName);
+
+            // ✅ 유사 이미지
+            JSONArray similarImages = firstSuggestion.optJSONArray("similar_images");
+            String resultImageUrl = null;
+            if (similarImages != null && similarImages.length() > 0) {
+                resultImageUrl = similarImages.getJSONObject(0).optString("url", null);
             }
 
-            JSONObject first = suggestions.getJSONObject(0);
-            String plantName = first.optString("name", "Unknown");
-            double probability = first.optDouble("probability", 0) * 100;
+            // 6️⃣ DB 저장
+            PlantIdentification saved = plantIdentificationRepository.save(
+                PlantIdentification.builder()
+                    .previewUrl("data:image/jpeg;base64," + base64Image)
+                    .imageUrl(resultImageUrl)
+                    .englishName(englishName)
+                    .identifiedName(koreanName)
+                    .confidence(confidence)
+                    .build()
+            );
 
-            // ✅ 유사 이미지 추출
-            String imageUrl = null;
-            JSONArray similarImages = first.optJSONArray("similar_images");
-            if (similarImages != null && !similarImages.isEmpty()) {
-                imageUrl = similarImages.getJSONObject(0).optString("url", null);
-            }
-
-            PlantIdentification identification = PlantIdentification.builder()
-                .identifiedName(plantName)
-                .confidence(probability)
-                .build();
-
-            plantIdentificationRepository.save(identification);
-            log.info("✅ 식물 식별 완료 및 저장: {} (정확도: {}%)", plantName, Math.round(probability));
-
+            // 7️⃣ 결과 반환
             return new PlantIdentificationResponse(
-                plantName,
-                Math.round(probability) + "%",
-                imageUrl
+                koreanName,                 // 번역된 이름
+                englishName,                // 영어 이름
+                confidence,                 // 정확도
+                saved.getPreviewUrl(),      // 업로드 이미지
+                saved.getImageUrl()         // 결과 이미지
             );
 
         } catch (Exception e) {
-            log.error("식별 API 호출 실패: {}", e.getMessage());
-            throw new RuntimeException("식별 API 호출 실패: " + e.getMessage());
+            log.error("❌ 식별 중 오류: {}", e.getMessage());
+            return new PlantIdentificationResponse("에러", "-", 0.0, null, null);
         }
     }
 
     /**
-     * ✅ 자동 호출용 (URL 기반 식별)
+     * ✅ 전체 식별 이력 조회
      */
-    private void identifyAndSaveFromUrl(String imageUrl) {
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            String apiUrl = baseUrl + "/identification";
-
-            JSONObject requestJson = new JSONObject();
-            requestJson.put("images", new JSONArray(List.of(imageUrl)));
-            requestJson.put("similar_images", true);
-            requestJson.put("classification_level", "species");
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Api-Key", apiKey);
-
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestJson.toString(), headers);
-            ResponseEntity<String> responseEntity =
-                restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity, String.class);
-
-            if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                JSONObject json = new JSONObject(responseEntity.getBody());
-                JSONArray suggestions = json
-                    .optJSONObject("result")
-                    .optJSONObject("classification")
-                    .optJSONArray("suggestions");
-
-                if (suggestions != null && !suggestions.isEmpty()) {
-                    JSONObject first = suggestions.getJSONObject(0);
-                    String plantName = first.optString("name", "Unknown");
-                    double probability = first.optDouble("probability", 0) * 100;
-
-                    PlantIdentification identification = PlantIdentification.builder()
-                        .identifiedName(plantName)
-                        .confidence(probability)
-                        .build();
-
-                    plantIdentificationRepository.save(identification);
-                    log.info("✅ 자동 식별 완료: {}", plantName);
-                }
-            } else {
-                log.error("자동 식별 실패: {}", responseEntity.getStatusCode());
-            }
-        } catch (Exception e) {
-            log.error("자동 식별 중 오류 발생: {}", e.getMessage());
-        }
+    public List<PlantIdentification> getAllIdentifications() {
+        return plantIdentificationRepository.findAll();
     }
 }
