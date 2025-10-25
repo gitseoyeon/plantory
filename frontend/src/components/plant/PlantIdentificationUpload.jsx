@@ -26,7 +26,7 @@ const PlantIdentificationUpload = ({ onResult }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://localhost:8080/api/identification/identification",
+        "http://localhost:8080/api/identification/identify",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

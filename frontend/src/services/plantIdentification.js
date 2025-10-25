@@ -5,7 +5,7 @@ export const identifyPlant = async (imageFile) => {
   formData.append("image", imageFile);
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/identification`, formData, {
+   const response = await axios.post(`${API_BASE_URL}/identify`, formData, {
       // ❌ Content-Type을 수동으로 지정하지 말 것!
       // axios가 boundary 포함한 헤더를 자동으로 설정함
     });
