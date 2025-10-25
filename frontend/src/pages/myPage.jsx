@@ -267,7 +267,11 @@ const EditProfileForm = ({ user, onUpdateSuccess, onCancel }) => {
       return;
     }
     try {
-      const res = await api.patch("/api/users/profile/me", formData);
+      const payload = { ...formData };
+      if (payload.style === "") {
+        delete payload.style; // 빈 문자열일 경우 필드 제거
+      }
+      const res = await api.patch("/api/users/profile/me", payload);
       if (res.status === 200) {
         alert("프로필이 성공적으로 수정되었습니다!");
         onUpdateSuccess();
