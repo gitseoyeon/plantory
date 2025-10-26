@@ -25,7 +25,7 @@ export default function Navbar() {
         <ul className="flex gap-6 text-gray-700 font-medium">
           <li>
             <Link to="/dictionary" className="hover:text-green-600">
-              식물검색
+              식물정보
             </Link>
           </li>
           <li>
