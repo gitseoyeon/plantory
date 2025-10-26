@@ -35,8 +35,8 @@ const PostLikeButton = ({ post }) => {
       className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-lg shadow-md transition-all duration-150
         ${
           localLiked
-            ? "bg-red-100 text-red-500 hover:bg-red-200"
-            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            ? "bg-red-200 text-gray-600 hover:bg-red-200"
+            : "bg-gray-100 text-gray-500 hover:bg-red-200"
         } hover:scale-105 active:scale-95`}
     >
       <span className="text-sm">{localLiked ? "❤️" : "🤍"}</span>

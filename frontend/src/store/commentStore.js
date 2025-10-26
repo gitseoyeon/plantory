@@ -11,14 +11,17 @@ const useCommentStore = create((set, get) => ({
 
   /**
    * ✅ 댓글 전체 불러오기
-   * 서버에서 평면(flat) 구조로 내려주면 nestComments()로 계층 변환
+   * (백엔드에서 이미 children 구조로 내려줌 → replies로 변환)
    */
   fetchComments: async (postId) => {
     set({ loading: true, error: null });
     try {
       const data = await commentService.getComments(postId);
-      const nested = nestComments(data);
-      set({ comments: nested, loading: false });
+
+      // ✅ children → replies로 필드명 변환
+      const converted = convertChildrenToReplies(data);
+
+      set({ comments: converted, loading: false });
     } catch (err) {
       set({
         loading: false,
@@ -33,22 +36,16 @@ const useCommentStore = create((set, get) => ({
   createComment: async (postId, content, parentId = null) => {
     set({ loading: true, error: null });
     try {
-      // ✅ 댓글 생성 요청
       const newComment = await commentService.createComment(postId, {
         content,
         parentId,
       });
 
-      // ✅ 전체 다시 fetch하지 않고, 현재 state에 직접 추가
       set((state) => {
         let updatedComments;
         if (parentId) {
-          // ✅ 대댓글이면 부모에 추가
-          updatedComments = addReplyToParent(
-            state.comments,
-            parentId,
-            newComment
-          );
+          // ✅ 대댓글이면 부모의 replies에 추가
+          updatedComments = addReplyToParent(state.comments, parentId, newComment);
         } else {
           // ✅ 일반 댓글이면 맨 앞에 추가
           updatedComments = [newComment, ...state.comments];
@@ -70,11 +67,7 @@ const useCommentStore = create((set, get) => ({
   updateComment: async (postId, commentId, data) => {
     set({ loading: true, error: null });
     try {
-      const updated = await commentService.updateComment(
-        postId,
-        commentId,
-        data
-      );
+      const updated = await commentService.updateComment(postId, commentId, data);
       set((state) => ({
         comments: updateCommentInTree(state.comments, commentId, updated),
         loading: false,
@@ -111,10 +104,7 @@ const useCommentStore = create((set, get) => ({
    */
   toggleLike: async (postId, commentId) => {
     try {
-      const { isLiked, likeCount } = await commentService.toggleLike(
-        postId,
-        commentId
-      );
+      const { isLiked, likeCount } = await commentService.toggleLike(postId, commentId);
       set((state) => ({
         comments: updateLikeInComments(state.comments, commentId, {
           isLiked,
@@ -131,25 +121,19 @@ const useCommentStore = create((set, get) => ({
 }));
 
 /* -------------------------------------------------------
- * 헬퍼 함수들 (트리형 데이터 업데이트 전용)
+ * 🔧 헬퍼 함수들 (트리형 데이터 업데이트 전용)
  * -----------------------------------------------------*/
 
-/** 평면 구조 → 중첩 트리 변환 */
-function nestComments(flat) {
-  if (!Array.isArray(flat)) return [];
-  const map = {};
-  const roots = [];
-
-  flat.forEach((c) => (map[c.id] = { ...c, replies: [] }));
-  flat.forEach((c) => {
-    if (c.parentId) map[c.parentId]?.replies.push(map[c.id]);
-    else roots.push(map[c.id]);
-  });
-
-  return roots;
+/** ✅ children → replies 필드 변환 */
+function convertChildrenToReplies(comments) {
+  if (!Array.isArray(comments)) return [];
+  return comments.map((c) => ({
+    ...c,
+    replies: convertChildrenToReplies(c.children || []), // 재귀 변환
+  }));
 }
 
-/** 대댓글 추가 */
+/** ✅ 대댓글 추가 */
 function addReplyToParent(comments, parentId, reply) {
   return comments.map((c) => {
     if (c.id === parentId) {
@@ -162,11 +146,10 @@ function addReplyToParent(comments, parentId, reply) {
   });
 }
 
-/** 댓글 내용 업데이트 */
+/** ✅ 댓글 내용 업데이트 */
 const updateCommentInTree = (comments, commentId, updated) => {
   return comments.map((comment) => {
     if (comment.id === commentId) {
-      // ✅ 기존 replies 유지
       return { ...comment, ...updated, replies: comment.replies };
     }
     if (comment.replies && comment.replies.length > 0) {
@@ -179,7 +162,7 @@ const updateCommentInTree = (comments, commentId, updated) => {
   });
 };
 
-/** 댓글/대댓글 삭제 */
+/** ✅ 댓글/대댓글 삭제 */
 function removeCommentFromTree(comments, commentId) {
   return comments
     .filter((c) => c.id !== commentId)
@@ -189,7 +172,7 @@ function removeCommentFromTree(comments, commentId) {
     }));
 }
 
-/** 좋아요 상태 업데이트 */
+/** ✅ 좋아요 상태 업데이트 */
 function updateLikeInComments(comments, commentId, likeData) {
   return comments.map((c) => {
     if (c.id === commentId) return { ...c, ...likeData };
