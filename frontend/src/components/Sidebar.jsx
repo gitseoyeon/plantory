@@ -200,13 +200,13 @@ export default function Sidebar() {
               return (
                 <li
                   key={n.id}
-                  className={`flex justify-between items-center py-3 px-2 hover:bg-gray-50 transition ${
+                  className={`flex justify-between items-start py-3 px-2 hover:bg-gray-50 transition ${
                     n.read ? "text-gray-400" : "text-gray-800 font-semibold"
                   }`}
                 >
                   {/* 내용 */}
                   <div
-                    className="flex-1 cursor-pointer"
+                    className="flex-1 cursor-pointer break-words overflow-hidden"
                     onClick={() => {
                       handleRead(n.id);
                       if (n.targetId) {
@@ -214,7 +214,7 @@ export default function Sidebar() {
                       }
                     }}
                   >
-                    <span className="truncate flex items-center gap-1">
+                    <span className="flex flex-wrap items-center gap-1 break-words">
                       {isComment && <span className="text-blue-400">💬</span>}
                       {isLike && <span className="text-red-400">❤️</span>}
                       <span>{n.content}</span>

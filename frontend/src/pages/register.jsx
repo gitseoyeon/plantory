@@ -136,13 +136,6 @@ export default function Register() {
               </p>
             )}
           </div>
-          <InputField
-            label="프로필 이미지 URL (선택)"
-            name="profileImageUrl"
-            value={formData.profileImageUrl}
-            onChange={handleChange}
-            placeholder="이미지 주소를 입력하세요"
-          />
 
           <button
             type="submit"

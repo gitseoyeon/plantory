@@ -53,10 +53,18 @@ export default function UserProfile() {
         <div className="flex flex-col items-center mb-8">
           {user.profileImageUrl ? (
             <motion.img
-              src={user.profileImageUrl}
+              src={
+                user.profileImageUrl.startsWith("data:image")
+                  ? user.profileImageUrl // Base64일 경우 그대로 사용
+                  : `${user.profileImageUrl}` // 서버 URL일 경우 그대로
+              }
               alt="Profile"
               className="w-28 h-28 rounded-full object-cover border-4 border-green-200 shadow"
               whileHover={{ scale: 1.05 }}
+              onError={(e) => {
+                e.currentTarget.src =
+                  "https://placehold.co/120x120?text=No+Image"; // fallback 이미지
+              }}
             />
           ) : (
             <div className="w-28 h-28 flex items-center justify-center bg-green-100 rounded-full">
@@ -64,7 +72,7 @@ export default function UserProfile() {
             </div>
           )}
           <h2 className="text-2xl font-bold text-green-700 mt-4">
-            {user.nickname}
+            {user.nickName || "이름 없음"}
           </h2>
         </div>
 
