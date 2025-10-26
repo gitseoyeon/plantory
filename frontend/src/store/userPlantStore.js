@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import userPlantService from "../services/userplant";
+import userPlantDiaryService from "../services/userDiary";
 
 const useUserPlantStore = create((set, get) => ({
   plants: [],
@@ -79,6 +80,19 @@ const useUserPlantStore = create((set, get) => ({
     }
   },
 
+  getPlantById: async (plantId) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await userPlantService.getPlantById(plantId);
+      const plantData = res?.data ?? res;
+      set({ plant: plantData, loading: false });
+      return plantData;
+    } catch (err) {
+      console.error("식물 조회 실패:", err);
+      set({ error: err, loading: false });
+      throw err;
+    }
+  },
   createPlant: async (payload) => {
     set({ loading: true, error: null });
     try {

@@ -24,7 +24,7 @@ public class UserPlantImageService {
     private final AuthenticationService authenticationService;
 
     @Value("${app.upload.dir.qr}")
-    private String qrUploadDir;     // Uploads/qr/유저Id/timestamp_랜덤6자 - 유저식물 등록의 초기 사진
+    private String qrUploadDir;     // Uploads/qr/유저Id/timestamp_랜덤6자 - 유저식물 등록의 초기 사진, qr폴더에 저장
 
     public UploadResult saveOne(MultipartFile file) {
         try {
@@ -51,7 +51,7 @@ public class UserPlantImageService {
             Files.copy(file.getInputStream(), out, StandardCopyOption.REPLACE_EXISTING);
 
             // 공개 URL: /files/qr/{userId}/{filename}
-            String publicUrl = String.format("/files/plant/%d/%s", userId, filename);
+            String publicUrl = String.format("/files/qr/%d/%s", userId, filename);
 
             return new UploadResult(filename, publicUrl);
 
