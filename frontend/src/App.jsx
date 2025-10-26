@@ -20,7 +20,8 @@ import UserProfile from "./pages/userProfile";
 
 // 식물 관리
 import PlantDetail from "./pages/userPlantDetail";
-import PlantList from "./components/userplant/PlantList";
+import UserPlantList from "./pages/userPlantList";
+import UserPlantDiaryList from "./pages/userPlantDiaryList";
 
 //식물 백과사전
 import PlantPage from "./pages/PlantPage";
@@ -52,13 +53,14 @@ function AppLayout() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/oauth2/callback" element={<OAuthCallback />} />
-
-          {/* 식물 관리 */}
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/users/:userId" element={<UserProfile />} />
-          <Route path="/plants" element={<PlantList />} />
+
+          {/* 식물 관리 */}
           <Route path="/plant/:plantId" element={<PlantDetail />} />
-          
+          <Route path="/plants" element={<UserPlantList />} />
+          <Route path="/diary" element={<UserPlantDiaryList />} />
+
           {/* 식물정보 */}
           <Route path="/dictionary/*" element={<PlantPage />}>
             <Route path="list" element={<PlantDictionaryList />} />

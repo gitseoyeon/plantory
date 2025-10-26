@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import FeedCard from "../components/FeedCard";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import PlantRegister from "./plantRegister";
 import AllPlantList from "../components/feed/AllPlantList";
 import Sidebar from "../components/Sidebar";
 import logoAnimal from "../assets/logo_animal.png";
 import { postService } from "../services/post";
+import PostPreviewCard from "../components/post/PostPreviewCard";
 
 export default function Home() {
   const [showPopup, setShowPopup] = useState(false);
@@ -100,7 +101,7 @@ export default function Home() {
                   🌿 사용자 식물 미리보기
                 </h2>
                 <button
-                  onClick={() => navigate("/growth")}
+                  onClick={() => navigate("/plants")}
                   className="text-green-600 font-medium hover:underline"
                 >
                   더보기 →
@@ -124,54 +125,20 @@ export default function Home() {
                   더보기 →
                 </button>
               </div>
-              <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div>
-                  {posts.length > 0 ? (
-                    posts.map((post) => (
-                      <Link
-                        key={post.id}
-                        to={`/posts/${post.id}`}
-                        className="block border border-gray-100 rounded-lg p-4 mb-4 bg-gradient-to-r from-gray-50 to-white hover:shadow-md hover:scale-[1.01] transition-all cursor-pointer"
-                      >
-                        <div className="flex justify-between items-center mb-2">
-                          <span
-                            className={`text-xs font-semibold rounded-full px-3 py-1 border shadow-sm
-                              ${
-                                post.category === "PROUD"
-                                  ? "text-green-800 bg-green-100 border-green-200"
-                                  : post.category === "QUESTION"
-                                  ? "text-yellow-800 bg-yellow-100 border-yellow-200"
-                                  : post.category === "ADOPT"
-                                  ? "text-pink-800 bg-pink-100 border-pink-200"
-                                  : post.category === "TIP"
-                                  ? "text-blue-800 bg-blue-100 border-blue-200"
-                                  : "text-gray-800 bg-gray-100 border-gray-200"
-                              }`}
-                          >
-                            {"🔥" + post.category || "일반"}
-                          </span>
-                          <div className="text-xs text-gray-400 flex items-center gap-2">
-                            <span className="truncate">
-                              {post.user?.nickName || "익명"}
-                            </span>
-                            <span className="text-gray-300">|</span>
-                            <span>❤️ {post.likeCount ?? 0}</span>
-                            <span>💬 {post.commentCount ?? 0}</span>
-                          </div>
-                        </div>
-                        <p className="font-semibold text-gray-800 text-lg hover:underline transition-all truncate">
-                          {post.title}
-                        </p>
-                      </Link>
-                    ))
-                  ) : (
-                    <div className="p-4 text-gray-500 text-center">
-                      {isAuthenticated
-                        ? "게시글이 없습니다."
-                        : "로그인 후 이용 가능합니다."}
-                    </div>
-                  )}
-                </div>
+
+              {/* ✅ PostPreviewCard */}
+              <div className="bg-white border border-gray-200 divide-y divide-gray-100 rounded-lg shadow-sm">
+                {posts.length > 0 ? (
+                  posts.map((post) => (
+                    <PostPreviewCard key={post.id} post={post} />
+                  ))
+                ) : (
+                  <div className="p-4 text-gray-500 text-center">
+                    {isAuthenticated
+                      ? "게시글이 없습니다."
+                      : "로그인 후 이용 가능합니다."}
+                  </div>
+                )}
               </div>
             </div>
           </section>

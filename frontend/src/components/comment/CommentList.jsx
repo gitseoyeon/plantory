@@ -3,6 +3,14 @@ import CommentItem from "./CommentItem";
 import CommentForm from "./CommentForm";
 import { useEffect } from "react";
 
+// ✅ 댓글 개수 계산
+const countAllComments = (comments) => {
+  return comments.reduce(
+    (acc, c) => acc + 1 + (c.children ? countAllComments(c.children) : 0),
+    0
+  );
+};
+
 const CommentList = ({ postId }) => {
   const { comments, fetchComments, loading } = useCommentStore();
 
@@ -18,7 +26,7 @@ const CommentList = ({ postId }) => {
       <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
         댓글
         <span className="text-green-600 text-base font-medium">
-          {comments.length}
+          {countAllComments(comments)}
         </span>
       </h3>
 
@@ -31,7 +39,7 @@ const CommentList = ({ postId }) => {
           ))
         ) : (
           <p className="text-gray-400 text-sm text-center mt-4">
-            아직 댓글이 없습니다.
+            아직 댓글이 없습니다
           </p>
         )}
       </div>

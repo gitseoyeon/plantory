@@ -7,6 +7,22 @@ const userPlantDiaryService = {
     return res.data;
   },
 
+  //갤러리형
+  listAllDiaryPhotos: async (page = 0, size = 10) => {
+    const res = await api.get(`/api/diary/photos`, {
+      params: { page, size },
+    });
+    return res.data;
+  },
+
+  //목록형
+  listAllPlantDiary: async (page = 0, size = 10) => {
+    const res = await api.get(`/api/diary/all`, {
+      params: { page, size },
+    });
+    return res.data;
+  },
+
   listPlantDiary: async (plantId, page = 0, size = 10) => {
     const res = await api.get(`/api/diary/${plantId}`, {
       params: { page, size },
