@@ -13,6 +13,8 @@ import Register from "./pages/register";
 import Home from "./pages/home";
 import OAuthCallback from "./pages/oauthCallback";
 import useAuthStore from "./store/authStore";
+
+// 식물 정보
 import MyPage from "./pages/myPage";
 import UserProfile from "./pages/userProfile";
 
@@ -22,8 +24,10 @@ import UserPlantList from "./pages/userPlantList";
 import UserPlantDiaryList from "./pages/userPlantDiaryList";
 
 //식물 백과사전
+import PlantPage from "./pages/PlantPage";
 import PlantDictionaryList from "./pages/PlantDictionaryList";
 import PlantDictionaryDetail from "./pages/PlantDictionaryDetail";
+import PlantIdentification from "./pages/PlantIdentification";
 
 //커뮤니티
 import Community from "./pages/community";
@@ -57,15 +61,18 @@ function AppLayout() {
           <Route path="/plants" element={<UserPlantList />} />
           <Route path="/diary" element={<UserPlantDiaryList />} />
 
-          {/* 식물 백과사전 */}
-          <Route path="/dictionary" element={<PlantDictionaryList />} />
+          {/* 식물정보 */}
+          <Route path="/dictionary/*" element={<PlantPage />}>
+            <Route path="list" element={<PlantDictionaryList />} />
+            <Route path="identify" element={<PlantIdentification />} />
+          </Route>
           <Route path="/dictionary/:id" element={<PlantDictionaryDetail />} />
 
           {/* 커뮤니티 */}
           <Route path="/community" element={<Community />} />
           <Route path="/community/write" element={<PostForm />} />
           <Route path="/posts/:postId" element={<PostDetail />} />
-          <Route path="/posts" element={<PostList />} />
+          {/* <Route path="/posts" element={<PostList />} /> */}
           <Route path="/posts/edit/:postId" element={<PostForm />} />
         </Routes>
       </div>

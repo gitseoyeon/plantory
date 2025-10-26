@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import FeedCard from "../components/FeedCard";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import PlantRegister from "./plantRegister";
 import AllPlantList from "../components/feed/AllPlantList";
@@ -33,22 +33,21 @@ export default function Home() {
     fetchPlants();
   }, []);
 
-  // ✅ 커뮤니티 게시글 불러오기
+  // ✅ 카테고리별 인기 게시글 불러오기
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchPopularPosts = async () => {
       try {
-        const data = await postService.getAllPosts();
-        // 배열/페이지 응답 모두 대응
+        const data = await postService.getPopularPosts();
         const list = Array.isArray(data)
           ? data
           : data?.content ?? data?.items ?? [];
-        setPosts((list || []).slice(0, 5));
-        console.log("🧩 posts 응답 형태:", data);
+        setPosts(list);
+        console.log("🏆 인기 게시글 응답:", data);
       } catch (err) {
-        console.error("❌ 커뮤니티 게시글 불러오기 실패:", err);
+        console.error("❌ 인기 게시글 불러오기 실패:", err);
       }
     };
-    fetchPosts();
+    fetchPopularPosts();
   }, []);
 
   return (
@@ -116,7 +115,7 @@ export default function Home() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800">
-                  💬 커뮤니티 인기글
+                  💬 카테고리별 커뮤니티 인기글
                 </h2>
                 <button
                   onClick={() => navigate("/community")}
@@ -126,50 +125,44 @@ export default function Home() {
                 </button>
               </div>
               <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div className="divide-y divide-gray-200">
+                <div>
                   {posts.length > 0 ? (
                     posts.map((post) => (
-                      <div
+                      <Link
                         key={post.id}
-                        className="flex justify-between items-center p-3 hover:bg-gray-50 cursor-pointer transition-all"
-                        onClick={() => navigate(`/community/${post.id}`)}
+                        to={`/posts/${post.id}`}
+                        className="block border border-gray-100 rounded-lg p-4 mb-4 bg-gradient-to-r from-gray-50 to-white hover:shadow-md hover:scale-[1.01] transition-all cursor-pointer"
                       >
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex justify-between items-center mb-2">
                           <span
-                            className={`text-xs font-medium rounded px-2 py-0.5 flex-shrink-0 border
+                            className={`text-xs font-semibold rounded-full px-3 py-1 border shadow-sm
                               ${
                                 post.category === "PROUD"
-                                  ? "text-green-700 bg-green-100 border-green-200" // 자랑
+                                  ? "text-green-800 bg-green-100 border-green-200"
                                   : post.category === "QUESTION"
-                                  ? "text-yellow-700 bg-yellow-100 border-yellow-200" // 질문
+                                  ? "text-yellow-800 bg-yellow-100 border-yellow-200"
                                   : post.category === "ADOPT"
-                                  ? "text-pink-700 bg-pink-100 border-pink-200" // 입양
+                                  ? "text-pink-800 bg-pink-100 border-pink-200"
                                   : post.category === "TIP"
-                                  ? "text-blue-700 bg-blue-100 border-blue-200" // 팁
-                                  : "text-gray-700 bg-gray-100 border-gray-200"
+                                  ? "text-blue-800 bg-blue-100 border-blue-200"
+                                  : "text-gray-800 bg-gray-100 border-gray-200"
                               }`}
                           >
-                            {post.category || "일반"}
+                            {"🔥" + post.category || "일반"}
                           </span>
-                          <p className="font-medium text-gray-800 truncate max-w-[420px] hover:underline hover:font-semibold transition-all">
-                            {post.title}
-                          </p>
-                          <p className="text-sm text-gray-500 flex-shrink-0">
-                            [{post.commentCount ?? 0}]
-                          </p>
+                          <div className="text-xs text-gray-400 flex items-center gap-2">
+                            <span className="truncate">
+                              {post.user?.nickName || "익명"}
+                            </span>
+                            <span className="text-gray-300">|</span>
+                            <span>❤️ {post.likeCount ?? 0}</span>
+                            <span>💬 {post.commentCount ?? 0}</span>
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-400 flex items-center gap-2">
-                          <span className="truncate">
-                            {post.user?.nickName || "익명"}
-                          </span>
-                          <span className="text-gray-300">|</span>
-                          <span>
-                            {post.likeCount
-                              ? post.likeCount.toLocaleString()
-                              : 0}
-                          </span>
-                        </div>
-                      </div>
+                        <p className="font-semibold text-gray-800 text-lg hover:underline transition-all truncate">
+                          {post.title}
+                        </p>
+                      </Link>
                     ))
                   ) : (
                     <div className="p-4 text-gray-500 text-center">
