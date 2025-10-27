@@ -1,57 +1,61 @@
 import React, { useEffect, useState } from "react";
-import { getAllPlants, searchPlants } from "../services/plant";
-import PlantDictionaryCard from "../components/plant/PlantDictionaryCard";
 import { useNavigate, useLocation } from "react-router-dom";
+import PlantDictionaryCard from "../components/plant/PlantDictionaryCard";
+import { getPlantsByPage } from "../services/plant";
 
 const PlantDictionaryList = () => {
-  const [plants, setPlants] = useState([]);
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [plants, setPlants] = useState([]);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [size] = useState(20);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const savedQuery = params.get("query") || "";
-    setQuery(savedQuery);
+    const pageParam = parseInt(params.get("page")) || 0;
+    const queryParam = params.get("query") || "";
+
+    setPage(pageParam);
+    setQuery(queryParam);
 
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = savedQuery
-          ? await searchPlants({ query: savedQuery })
-          : await getAllPlants();
+        const res = await getPlantsByPage(pageParam, size, queryParam);
 
-        console.log("불러온 식물 데이터:", data);
-        setPlants(data);
-        setIsSearching(!!savedQuery);
-      } catch (error) {
-        console.error("식물 데이터 불러오기 실패:", error);
+        setPlants(res.data.content);
+        setTotalPages(res.data.totalPages);
+      } catch (err) {
+        console.error("식물 데이터 불러오기 실패:", err);
       } finally {
         setLoading(false);
       }
     };
 
-  
-    if (location.pathname.includes("/dictionary")) {
-      fetchData();
-    }
-  }, [location.search, location.pathname]);
+    fetchData();
+  }, [location.search]);
 
-  
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
     if (!query.trim()) {
-      navigate("/dictionary/list");
+      navigate(`/dictionary/list?page=0`);
     } else {
-      navigate(`/dictionary/list?query=${encodeURIComponent(query)}`);
+      navigate(
+        `/dictionary/list?page=0&query=${encodeURIComponent(query.trim())}`
+      );
     }
   };
 
-  const handleShowAll = () => {
-    setQuery("");
-    navigate("/dictionary/list");
+  const handlePageChange = (newPage) => {
+    navigate(
+      `/dictionary/list?page=${newPage}${
+        query ? `&query=${encodeURIComponent(query)}` : ""
+      }`
+    );
   };
 
   if (loading) return <p className="p-6 text-gray-600">로딩 중...</p>;
@@ -82,12 +86,10 @@ const PlantDictionaryList = () => {
         </button>
       </form>
 
-      {/* 🌱 식물 목록 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {/* 🌱 식물 카드 그리드 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pb-10">
         {plants.length > 0 ? (
-          plants.map((plant) => (
-            <PlantDictionaryCard key={plant.id} plant={plant} />
-          ))
+          plants.map((p) => <PlantDictionaryCard key={p.id} plant={p} />)
         ) : (
           <div className="col-span-full text-center mt-10 text-gray-600">
             <p className="text-lg mb-2">검색 결과가 없습니다.</p>
@@ -95,15 +97,22 @@ const PlantDictionaryList = () => {
         )}
       </div>
 
-      {/* 🌿 전체보기 버튼 (검색 중일 때만 표시) */}
-      {isSearching && (
-        <div className="text-center mt-10">
-          <button
-            onClick={handleShowAll}
-            className="inline-block bg-green-100 hover:bg-green-200 text-green-700 font-medium px-5 py-2.5 rounded-full transition-all duration-200"
-          >
-            🌿 전체 목록으로 돌아가기
-          </button>
+      {/* 📄 페이지네이션 버튼 */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-6">
+          {[...Array(totalPages)].map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => handlePageChange(idx)}
+              className={`px-4 py-2 rounded-lg ${
+                idx === page
+                  ? "bg-green-700 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {idx + 1}
+            </button>
+          ))}
         </div>
       )}
     </div>

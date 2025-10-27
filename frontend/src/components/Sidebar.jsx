@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getAllPlants } from "../services/plant";
+import { getPlantsByPage } from "../services/plant";
 import {
   getNotifications,
   markAsRead,
