@@ -112,7 +112,7 @@ const PlantDetail = () => {
         </div>
 
         {/* 이미지 */}
-        <div className="w-full h-64 bg-gray-100 rounded-xl overflow-hidden">
+        <div className="w-full h-auto bg-gray-100 rounded-xl overflow-hidden">
           <img
             src={
               plant.imageUrl
